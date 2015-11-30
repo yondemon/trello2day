@@ -21,3 +21,13 @@ body, button, html, input, select, textarea {
   text-decoration: none;
   color: #4d4d4d;
 } 
+
+li.futuretask {
+    background-color: #EEE;
+    color: #999;
+    opacity: 0.6;
+}
+
+li.todaytask {
+    background-color: #F96;
+}

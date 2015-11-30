@@ -1,1 +1,2 @@
 var trellokey = 'YOUR API KEY'; // https://trello.com/app-key
+var noFutureDays = 14;

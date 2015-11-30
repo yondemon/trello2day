@@ -66,11 +66,25 @@ var loadCards = function(strMsg){
         });
 
       $( "#msg" ).append(": "+todoTasks.length+" tasks");
+      var today = new Date();
+      var futureDay = new Date(new Date().setDate(new Date().getDate()+noFutureDays))
+      
       $.each(todoTasks,function(id,item){
         var itemDueDate = new Date(item.due);
-        $("#list").append("<li><h2><a href='http://trello.com/c/"+item.id+"' target='_blank'>"+item.name+"</a></h2>"+
-          //" <span class='date'>"+item.due+"</span></li>");
-          " <span class='date'>"+itemDueDate.getFullYear()+"-"+itemDueDate.getMonth()+"-"+itemDueDate.getDate()+" </span></li>");
+        var itemClass = "";
+
+        if(itemDueDate.getTime() > futureDay.getTime()){
+          itemClass =  itemClass + "futuretask";
+        }
+        if(itemDueDate.getTime() === today.getTime() || itemDueDate.getTime() < today.getTime()){
+          itemClass =  itemClass + "todaytask";
+        }
+        
+        var itemStr = "<li class='"+itemClass+"'><h2><a href='http://trello.com/c/"+item.id+"' target='_blank'>"+item.name+"</a></h2>"+
+          " <span class='date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+" </span></li>"
+
+
+        $("#list").append(itemStr);
         });
 
 
