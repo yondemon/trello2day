@@ -1,0 +1,78 @@
+<html>
+<body>
+
+<div id="msg">
+  </div>
+
+<div id="list">
+</div>
+
+<script src="jquery-2.1.4.js"></script>
+<script src="config.js"></script>
+<script>
+$.getScript("https://trello.com/1/client.js?key="+trellokey, function(){
+  console.log("Trello Client Script loaded.");
+
+  Trello.authorize({
+    type: "redirect",
+    name: "Trello2Day",
+    scope: {
+      read: true,
+      write: false },
+    expiration: "never",
+    authenticationSuccess,
+    authenticationFailure
+  });
+
+  var authenticationSuccess = function() { console.log("Successful authentication"); };
+  var authenticationFailure = function() { console.log("Failed authentication"); };
+
+  Trello.get('/members/me/cards/open?fields=name,due', 
+    function(data) { 
+      $( "#msg" ).html("OK");
+
+      var todoTasks = [];
+      $.each(data,function(id,item){
+
+        if(item.due !== null){
+          todoTasks.push(item);
+        }
+      });
+
+      todoTasks.sort(function(a,b){
+        var dateA = new Date(a.due);
+        var dateB = new Date(b.due);
+        return a.due<b.due ? -1 : a.due>b.due ? 1 : 0;
+        });
+
+      $( "#msg" ).append(todoTasks.length);
+      $.each(todoTasks,function(id,item){
+        var itemDueDate = new Date(item.due);
+        // +itemDueDate.getFullYear()+" "+itemDueDate.getMonth()+" "+itemDueDate.getDate()+" "
+        $("#list").append("<li>"+item.due+" <a href='http://trello.com/c/"+item.id+"' target='_blank'>"+item.name+"</a></li>");
+        });
+
+
+      console.log(data);
+      },
+    function(msg){ 
+      console.log("ERROR getting");
+      $("#msg").html("Error " + msg);
+      }
+    );
+
+  /*
+  var printCards = function(data) { 
+      $( "#msg" ).html("OK");
+      data.each(function(item){
+        $("$list").append(""+item);
+      })
+      console.log(data);
+      };
+  */
+});
+
+
+</script>
+</body>
+</html>
