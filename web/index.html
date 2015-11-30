@@ -1,8 +1,13 @@
 <html>
+<head>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
 <body>
 
 <div id="msg">
   </div>
+
+<button id="reloadCards">Reload</button>
 
 <div id="list">
 </div>
@@ -13,6 +18,17 @@
 $.getScript("https://trello.com/1/client.js?key="+trellokey, function(){
   console.log("Trello Client Script loaded.");
 
+  authorizeTrello();
+
+  loadCards("LOAD");  
+});
+
+$( "#reloadCards" ).click(function() {
+  loadCards("RELOAD");
+});
+
+
+var authorizeTrello = function(){
   Trello.authorize({
     type: "redirect",
     name: "Trello2Day",
@@ -23,13 +39,17 @@ $.getScript("https://trello.com/1/client.js?key="+trellokey, function(){
     authenticationSuccess,
     authenticationFailure
   });
+};
 
-  var authenticationSuccess = function() { console.log("Successful authentication"); };
-  var authenticationFailure = function() { console.log("Failed authentication"); };
 
+var authenticationSuccess = function() { console.log("Successful authentication"); };
+var authenticationFailure = function() { console.log("Failed authentication"); };
+
+var loadCards = function(strMsg){
   Trello.get('/members/me/cards/open?fields=name,due', 
     function(data) { 
-      $( "#msg" ).html("OK");
+      $( "#msg" ).html(strMsg+" OK");
+      $("#list").html("");
 
       var todoTasks = [];
       $.each(data,function(id,item){
@@ -45,11 +65,12 @@ $.getScript("https://trello.com/1/client.js?key="+trellokey, function(){
         return a.due<b.due ? -1 : a.due>b.due ? 1 : 0;
         });
 
-      $( "#msg" ).append(todoTasks.length);
+      $( "#msg" ).append(": "+todoTasks.length+" tasks");
       $.each(todoTasks,function(id,item){
         var itemDueDate = new Date(item.due);
-        // +itemDueDate.getFullYear()+" "+itemDueDate.getMonth()+" "+itemDueDate.getDate()+" "
-        $("#list").append("<li>"+item.due+" <a href='http://trello.com/c/"+item.id+"' target='_blank'>"+item.name+"</a></li>");
+        $("#list").append("<li><h2><a href='http://trello.com/c/"+item.id+"' target='_blank'>"+item.name+"</a></h2>"+
+          //" <span class='date'>"+item.due+"</span></li>");
+          " <span class='date'>"+itemDueDate.getFullYear()+"-"+itemDueDate.getMonth()+"-"+itemDueDate.getDate()+" </span></li>");
         });
 
 
@@ -60,17 +81,17 @@ $.getScript("https://trello.com/1/client.js?key="+trellokey, function(){
       $("#msg").html("Error " + msg);
       }
     );
+  };
 
-  /*
-  var printCards = function(data) { 
-      $( "#msg" ).html("OK");
-      data.each(function(item){
-        $("$list").append(""+item);
-      })
-      console.log(data);
-      };
-  */
-});
+
+var printCards = function(data) { 
+    $( "#msg" ).html("OK");
+    data.each(function(item){
+      $("$list").append(""+item);
+    })
+    console.log(data);
+    };
+
 
 
 </script>

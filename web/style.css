@@ -1,0 +1,23 @@
+body, button, html, input, select, textarea {
+    color: #4d4d4d;
+    font: 14px "Helvetica Neue",Arial,Helvetica,sans-serif;
+    line-height: 18px;
+}
+
+#list li {
+    border: 1px solid #999;
+    margin: 3px;
+    min-height: 2em;
+    list-style-type: none;
+    padding: 3px;
+}
+
+#list li h2 {
+    font-size: 1.1em;
+    margin: 0.2em 0px;
+}
+
+#list li h2 a {
+  text-decoration: none;
+  color: #4d4d4d;
+} 
