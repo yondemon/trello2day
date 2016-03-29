@@ -11,22 +11,7 @@ $( "#reloadCards" ).click(function() {
 });
 
 
-var authorizeTrello = function(){
-  Trello.authorize({
-    type: "redirect",
-    name: "Trello2Day",
-    scope: {
-      read: true,
-      write: false },
-    expiration: "never",
-    authenticationSuccess,
-    authenticationFailure
-  });
-};
 
-
-var authenticationSuccess = function() { console.log("Successful authentication"); };
-var authenticationFailure = function() { console.log("Failed authentication"); };
 
 var loadCards = function(strMsg){
   Trello.get('/members/me/cards/open?fields=name,due', 
@@ -71,7 +56,7 @@ var loadCards = function(strMsg){
         });
 
 
-      console.log(data);
+      //console.log(data);
       },
     function(msg){ 
       console.log("ERROR getting");
@@ -79,14 +64,3 @@ var loadCards = function(strMsg){
       }
     );
   };
-
-
-var printCards = function(data) { 
-    $( "#msg" ).html("OK");
-    data.each(function(item){
-      $("$list").append(""+item);
-    })
-    console.log(data);
-    };
-
-
