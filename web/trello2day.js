@@ -1,3 +1,6 @@
+var board = Array();
+var list = {};
+
 var authorizeTrello = function(){
   Trello.authorize({
     type: "redirect",
@@ -14,6 +17,28 @@ var authorizeTrello = function(){
 var authenticationSuccess = function() { console.log("Successful authentication"); };
 var authenticationFailure = function() { console.log("Failed authentication"); };
 
+var getListName = function(idList){
+
+  if(list.hasOwnProperty(idList)){
+    console.log("CACHE:"+idList);
+
+    return list[idList].name; 
+
+  } else {
+    console.log("GET: "+idList);
+
+    $.when(Trello.lists.get(idList))
+    .then(function(data) { 
+        console.log("OK: "+idList+"="+data.name);
+        list[idList] = data;
+        return list[idList].name;
+      });
+  }
+
+
+
+
+}
 
 var loadBoards = function (){
   console.log("LOAD boards");
@@ -57,10 +82,20 @@ var printCards = function(data) {
     };
 
 var findBoard = function(boardId) {
-  for (var i = 0, len = board.length; i < len; i++) {
-      if (board[i].id === boardId)
-          return board[i]; // Return as soon as the object is found
+  if(board.length){
+    for (var i = 0, len = board.length; i < len; i++) {
+        if (board[i].id === boardId)
+            return board[i]; // Return as soon as the object is found
+    }
   }
   return null; // The object was not found
 //  return {name: "- NO -"};
+}
+
+var getBoardName  = function(boardId) {
+  thisBoard = findBoard(boardId);
+  if(thisBoard)
+    return thisBoard.name;
+  else
+    return "-";
 }

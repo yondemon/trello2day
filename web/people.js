@@ -1,5 +1,3 @@
-var board = Array();
-
 
 //---- - ----
 
@@ -8,14 +6,12 @@ $.getScript("https://trello.com/1/client.js?key="+trellokey, function(){
 
   authorizeTrello();
 
-//  loadCards("LOAD");  
   loadBoards();
 
   loadTeam();
 });
 
 $("#reloadCards").click(function() {
-  //var person = "yondemon";
   var person = $("#opt-member").val();
   console.log(person);
 
@@ -31,7 +27,6 @@ $("#opt-member").change(function(){
 
 
 // ---- FUNCTIONS ----
-
 
 var loadCards = function(strMsg,personId){
 //  Trello.get('/members/'+personId+'/cards/open?fields=name,due,idBoard', 
@@ -70,24 +65,15 @@ var loadCards = function(strMsg,personId){
         }
         
         if(findBoard(item.idBoard)){
-//          var itemStr = "<li class='"+itemClass+"'><h2><a href='http://trello.com/c/"+item.id+"' target='_blank'>"+item.name+"</a></h2>"+
-//            " <span class='date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+" </span>"+ 
-//            " <span class='board'>"+findBoard(item.idBoard).name+"</span></li>"
           $("#list").append("<li class='"+itemClass+"'><h2><a href='http://trello.com/c/"+item.id+"' target='_blank'>"+item.name+"</a></h2>"+
             " <span class='date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+" </span>"+ 
             " <span class='board'>"+findBoard(item.idBoard).name+"</span></li>");
         };
 
-        //console.log(findBoard(item.idBoard));
-
-        //$("#list").append(itemStr);
-
         });
 
       $( "#msg" ).append(": LOADED "+$("#list").children().length+" tasks");
 
-
-      //console.log(data);
       },
     function(msg){ 
       console.log("ERROR getting");
