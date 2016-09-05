@@ -44,7 +44,7 @@ var getListName = function(idList){
 }
 
 var loadBoards = function (){
-  console.log("LOAD boards");
+//  console.log("LOAD boards");
 
   Trello.get('/organizations/'+organization+'/boards/all',
       function(data) { 
@@ -58,7 +58,7 @@ var loadBoards = function (){
 }
 
 var loadTeam = function(){
-  console.log("LOAD team");
+//  console.log("LOAD team");
   $( "#msg" ).text("LOAD TEAM");
   //console.log(board);
 

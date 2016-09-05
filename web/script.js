@@ -1,9 +1,7 @@
 var taskCountToday = 0;
 var taskCountFuture = 0;
 
-var scrumDone = 0;
-var scrumTotal = 0;
-var scrum = {
+var scrumInit = {
     today : {
       done : 0,
       total: 0
@@ -17,6 +15,7 @@ var scrum = {
       total: 0
     }
   };
+var scrum;
 
 $.getScript("https://trello.com/1/client.js?key="+trellokey, function(){
   console.log("Trello Client Script loaded.");
@@ -36,6 +35,12 @@ $( "#reloadCards" ).click(function() {
 
 
 var loadCards = function(strMsg){
+
+  // RESET
+  taskCountToday = 0;
+  taskCountFuture = 0;
+  scrum = (JSON.parse(JSON.stringify(scrumInit))); // http://heyjavascript.com/4-creative-ways-to-clone-objects/
+
 //  Trello.get('/members/me/cards/open?fields=name,due,list&list=true&list_fields=all', 
   Trello.get('/members/me/cards/open?fields=all&list=true&list_fields=all', 
     function(data) { 
@@ -51,6 +56,8 @@ var loadCards = function(strMsg){
           todoTasks.push(item);
         }
       });
+
+
 
       todoTasks.sort(function(a,b){
         var dateA = new Date(a.due);
@@ -75,29 +82,32 @@ var loadCards = function(strMsg){
           taskCountToday ++;
         }
         
-        // var scrumRegex = /\((([\d]+)\/([\d]+))\)/; // /(\([\d]+\/[\d]+\))/; 
-        var scrumRegex = /\(((([\d])+\/)?([\d]+))\)/;
-        var matches = item.name.match(scrumRegex);
-        if (matches != null) {
-          console.log(matches[1]+" "+item.id+" "+item.name);
-          console.log("Done: "+matches[3]+" Total: "+matches[4]);
+        if(scrumPoints){
+          // var scrumRegex = /\((([\d]+)\/([\d]+))\)/; // /(\([\d]+\/[\d]+\))/; 
+          //var scrumRegex = /\(((([\d])+\/)?([\d]+))\)/;
+          var scrumRegex = /\(((([\d]+(.[\d])?)\/)?([\d]+(.[\d])?))\)/;
+          var matches = item.name.match(scrumRegex);
+          if (matches != null) {
+            //console.log(matches[1]+" "+item.id+" "+item.name);
+            //console.log("Done: "+matches[3]+" Total: "+matches[4]);
 
-          if(matches[3] != null){
-            scrum.total.done = scrum.total.done + +matches[3];
-          }
-          if(matches[4] != null){
-            scrum.total.total =+ scrum.total.total + +matches[4];
-          }
-
-          if(itemDueDate.getTime() < futureDay.getTime()){
             if(matches[3] != null){
-              scrum.iteration.done = scrum.iteration.done + +matches[3];
+              scrum.total.done = scrum.total.done + +matches[3];
             }
-            if(matches[4] != null){
-              scrum.iteration.total = scrum.iteration.total + +matches[4];
+            if(matches[5] != null){
+              scrum.total.total =+ scrum.total.total + +matches[5];
             }
-          }
 
+            if(itemDueDate.getTime() < futureDay.getTime()){
+              if(matches[3] != null){
+                scrum.iteration.done = scrum.iteration.done + +matches[3];
+              }
+              if(matches[5] != null){
+                scrum.iteration.total = scrum.iteration.total + +matches[5];
+              }
+            }
+
+          }
         }
 
         var itemStr = "<li class='"+itemClass+"'><h2><a href='http://trello.com/c/"+item.id+"' target='_blank'>"+item.name+"</a></h2>"+
@@ -111,10 +121,13 @@ var loadCards = function(strMsg){
 
 
       $("#msg").append("[<span id='taskCountToday'>T:"+taskCountToday +"  F:"+taskCountFuture+"</span>] ");
-      $("#msg").append("<br/>");
-      //$("#msg").append("<span>Scrum Today: ("+scrumToday['done']+"/"+scrumToday['total']+")</span> ");
-      $("#msg").append("<span>Scrum Iteration: ("+scrum.iteration.done+"/"+scrum.iteration.total+")</span> ");
-      $("#msg").append("<span>Scrum: ("+scrum.total.done+"/"+scrum.total.total+")</span> ");
+      
+      if(scrumPoints){
+        $("#msg").append('<div id="scrumBoard" class=""></div>');
+        //$("#msg").append("<span>Scrum Today: ("+scrumToday['done']+"/"+scrumToday['total']+")</span> ");      
+        $("#scrumBoard").append('<span id="scrumIteration" class="">'+"Scrum Iteration: ("+scrum.iteration.done+"/"+scrum.iteration.total+")</span> ");
+        $("#scrumBoard").append('<span id="scrumTotal" class="">'+"Scrum: ("+scrum.total.done+"/"+scrum.total.total+")</span> ");
+      }
 
       //console.log(data);
       },
