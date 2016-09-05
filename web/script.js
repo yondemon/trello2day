@@ -58,7 +58,7 @@ var loadCards = function(strMsg){
         return a.due<b.due ? -1 : a.due>b.due ? 1 : 0;
         });
 
-      $( "#msg" ).append(": "+todoTasks.length+" tasks [<span id='taskCountToday'>0</span>]");
+      $( "#msg" ).append(": "+todoTasks.length+" tasks");
       var today = new Date();
       var futureDay = new Date(new Date().setDate(new Date().getDate()+noFutureDays))
       
@@ -83,11 +83,21 @@ var loadCards = function(strMsg){
           console.log("Done: "+matches[3]+" Total: "+matches[4]);
 
           if(matches[3] != null){
-            scrumDone = scrumDone + +matches[3];
+            scrum.total.done = scrum.total.done + +matches[3];
           }
           if(matches[4] != null){
-            scrumTotal =+ scrumTotal + +matches[4];
+            scrum.total.total =+ scrum.total.total + +matches[4];
           }
+
+          if(itemDueDate.getTime() < futureDay.getTime()){
+            if(matches[3] != null){
+              scrum.iteration.done = scrum.iteration.done + +matches[3];
+            }
+            if(matches[4] != null){
+              scrum.iteration.total = scrum.iteration.total + +matches[4];
+            }
+          }
+
         }
 
         var itemStr = "<li class='"+itemClass+"'><h2><a href='http://trello.com/c/"+item.id+"' target='_blank'>"+item.name+"</a></h2>"+
@@ -100,10 +110,11 @@ var loadCards = function(strMsg){
         });
 
 
-      $("#taskCountToday").html("T:"+taskCountToday +"  F:"+taskCountFuture);
-      //$("#msg").append("<span>Scrum Today: ("+scrumToday['done']+"/"+scrumToday['total']+")</span>");
-      //$("#msg").append("<span>Scrum Iteration: ("+scrumIteration['done']+"/"+scrumIteration['total']+")</span>");
-      $("#msg").append("<span>Scrum: ("+scrumDone+"/"+scrumTotal+")</span>");
+      $("#msg").append("[<span id='taskCountToday'>T:"+taskCountToday +"  F:"+taskCountFuture+"</span>] ");
+      $("#msg").append("<br/>");
+      //$("#msg").append("<span>Scrum Today: ("+scrumToday['done']+"/"+scrumToday['total']+")</span> ");
+      $("#msg").append("<span>Scrum Iteration: ("+scrum.iteration.done+"/"+scrum.iteration.total+")</span> ");
+      $("#msg").append("<span>Scrum: ("+scrum.total.done+"/"+scrum.total.total+")</span> ");
 
       //console.log(data);
       },
