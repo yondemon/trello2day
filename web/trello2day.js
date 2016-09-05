@@ -20,17 +20,20 @@ var authenticationFailure = function() { console.log("Failed authentication"); }
 var getListName = function(idList){
 
   if(list.hasOwnProperty(idList)){
-    console.log("CACHE:"+idList);
+//    console.log("CACHE:"+idList);
 
     return list[idList].name; 
 
   } else {
-    console.log("GET: "+idList);
+//    console.log("GET: "+idList);
 
     $.when(Trello.lists.get(idList))
     .then(function(data) { 
-        console.log("OK: "+idList+"="+data.name);
+//        console.log("OK: "+idList+"="+data.name);
         list[idList] = data;
+
+        $(".list-"+idList).html(data.name);
+
         return list[idList].name;
       });
   }
@@ -47,7 +50,11 @@ var loadBoards = function (){
       function(data) { 
         //console.log(data);
         board = data;
-      });
+
+        $.each(board, function(index,value){
+          $(".board-"+this.id).html(this.name);
+        });
+  });
 }
 
 var loadTeam = function(){
