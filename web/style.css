@@ -4,12 +4,27 @@ body, button, html, input, select, textarea {
     line-height: 18px;
 }
 
+body {
+    background-color: #888;
+}
+
+div#msg {
+    background: #FFF;
+    padding: 0.3em;
+}
+
+#list {
+    padding: 0px 20px;
+    max-width: 350px;
+}
+
 #list li {
     border: 1px solid #999;
     margin: 3px;
     min-height: 2em;
     list-style-type: none;
     padding: 3px;
+    background-color: #FFF;
 }
 
 #list li h2 {
@@ -22,12 +37,27 @@ body, button, html, input, select, textarea {
   color: #4d4d4d;
 } 
 
-li.futuretask {
+#list li.futuretask {
     background-color: #EEE;
     color: #999;
     opacity: 0.6;
 }
 
-li.todaytask {
-    background-color: #F96;
+#list li.todaytask {
+    border: 2px solid;
+    /*background-color: #F96;*/
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;    
+}
+
+#scrumBoard {
+    float: right;
+    border: 1px solid #DDD;
+    padding: 0.3em;
+    background: #E2E4E6;
+    border-radius: 3px;
+}
+#scrumBoard span {
+    display: block;
 }
