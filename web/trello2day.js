@@ -28,13 +28,13 @@ var getListName = function(idList){
 //    console.log("GET: "+idList);
 
     $.when(Trello.lists.get(idList))
-    .then(function(data) { 
-//        console.log("OK: "+idList+"="+data.name);
-        list[idList] = data;
+      .then(function(data) { 
+  //        console.log("OK: "+idList+"="+data.name);
+          list[idList] = data;
 
-        $(".list-"+idList).html(data.name);
+          $(".list-"+idList).html(data.name);
 
-        return list[idList].name;
+          return list[idList].name;
       });
   }
 
@@ -46,15 +46,17 @@ var getListName = function(idList){
 var loadBoards = function (){
 //  console.log("LOAD boards");
 
-  Trello.get('/organizations/'+organization+'/boards/all',
-      function(data) { 
-        //console.log(data);
-        board = data;
+  if(typeof organization !== 'undefined'){
+    Trello.get('/organizations/'+organization+'/boards/all',
+        function(data) { 
+          //console.log(data);
+          board = data;
 
-        $.each(board, function(index,value){
-          $(".board-"+this.id).html(this.name);
-        });
-  });
+          $.each(board, function(index,value){
+            $(".board-"+this.id).html(this.name);
+          });
+    });
+  }
 }
 
 var loadTeam = function(){
@@ -63,21 +65,26 @@ var loadTeam = function(){
   //console.log(board);
 
   //https://api.trello.com/1/organizations/publicorg?members=all&member_fields=username,fullName&fields=name,desc&key=[application_key]&token=[optional_auth_token]
-  Trello.get('/organizations/'+organization+'/members/all',
-      function(data) { 
-        //console.log(data);
-        
-        var optmember = $("#opt-member");
-        optmember.find('option').remove();
+  if(typeof organization !== 'undefined'){
+    Trello.get('/organizations/'+organization+'/members/all',
+        function(data) { 
+          //console.log(data);
+          
+          var optmember = $("#opt-member");
+          optmember.find('option').remove();
 
-        optmember.append($("<option />").text("-SELECT-"));
+          optmember.append($("<option />").text("-SELECT-"));
 
-        $.each(data, function(id,item){
-          optmember.append($("<option />").val(item.id).text(item.fullName));
-          //console.log(item);
+          $.each(data, function(id,item){
+            optmember.append($("<option />").val(item.id).text(item.fullName));
+            //console.log(item);
+          });
+
         });
-
-      });
+  } else {
+    $( "#msg" ).text("NO TEAM (organization undefined)");
+    console.log("NO TEAM (organization undefined)");
+  }
 }
 
 var printCards = function(data) { 
