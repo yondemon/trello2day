@@ -95,6 +95,14 @@ var printCards = function(data) {
     //console.log(data);
     };
 
+var printINBOXCards = function(data) { 
+    $( "#msg" ).html("OK");
+    data.each(function(item){
+      $("$list").append(""+item);
+    })
+    //console.log(data);
+    };
+
 var findBoard = function(boardId) {
   if(board.length){
     for (var i = 0, len = board.length; i < len; i++) {
