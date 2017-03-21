@@ -26,6 +26,8 @@ body {
     margin: 0.2em;
 }
 
+
+
 .header-buttons {
     position: absolute;
     top: 5px;
@@ -57,9 +59,21 @@ body {
     background: linear-gradient(to bottom,rgba(255,255,255,.5) 0,rgba(255,255,255,.4) 100%);
 }
 
+nav ul {
+    margin-bottom: 0px;
+}
+nav li {
+    display: inline-block;
+    /* border: 1px solid; */
+    min-width: 5em;
+    padding: 0.4em;
+    background: #CCC;
+    text-align: center;
+    margin-bottom:  0px;
+}
 
 .content {
-    margin:8px;
+    padding: 0px;
 }
 
 div#msg {
@@ -89,7 +103,7 @@ div#msg {
 #list li h2 a {
   text-decoration: none;
   color: #4d4d4d;
-} 
+}
 
 #list li.futuretask {
     background-color: #EEE;
@@ -102,7 +116,7 @@ div#msg {
     /*background-color: #F96;*/
     color: #a94442;
     background-color: #f2dede;
-    border-color: #ebccd1;    
+    border-color: #ebccd1;
 }
 
 .badges {

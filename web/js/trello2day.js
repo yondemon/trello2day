@@ -20,27 +20,23 @@ var authenticationFailure = function() { console.log("Failed authentication"); }
 var getListName = function(idList){
 
   if(list.hasOwnProperty(idList)){
-//    console.log("CACHE:"+idList);
+    console.log("CACHE:"+idList);
 
-    return list[idList].name; 
+    return list[idList].name;
 
   } else {
-//    console.log("GET: "+idList);
+    console.log("GET: "+idList);
 
     $.when(Trello.lists.get(idList))
-      .then(function(data) { 
-  //        console.log("OK: "+idList+"="+data.name);
-          list[idList] = data;
+      .then(function(data) {
+          console.log("OK: "+idList+"="+data.name);
 
+          list[idList] = data;
           $(".list-"+idList).html(data.name);
 
           return list[idList].name;
       });
   }
-
-
-
-
 }
 
 var loadBoards = function (){
@@ -48,7 +44,7 @@ var loadBoards = function (){
 
   if(typeof organization !== 'undefined'){
     Trello.get('/organizations/'+organization+'/boards/all',
-        function(data) { 
+        function(data) {
           //console.log(data);
           board = data;
 
@@ -67,9 +63,9 @@ var loadTeam = function(){
   //https://api.trello.com/1/organizations/publicorg?members=all&member_fields=username,fullName&fields=name,desc&key=[application_key]&token=[optional_auth_token]
   if(typeof organization !== 'undefined'){
     Trello.get('/organizations/'+organization+'/members/all',
-        function(data) { 
+        function(data) {
           //console.log(data);
-          
+
           var optmember = $("#opt-member");
           optmember.find('option').remove();
 
@@ -87,15 +83,7 @@ var loadTeam = function(){
   }
 }
 
-var printCards = function(data) { 
-    $( "#msg" ).html("OK");
-    data.each(function(item){
-      $("$list").append(""+item);
-    })
-    //console.log(data);
-    };
-
-var printINBOXCards = function(data) { 
+var printCards = function(data) {
     $( "#msg" ).html("OK");
     data.each(function(item){
       $("$list").append(""+item);
