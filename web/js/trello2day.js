@@ -52,6 +52,17 @@ var loadBoards = function (){
             $(".board-"+this.id).html(this.name);
           });
     });
+  } else {
+    Trello.get('/members/me/boards/all',
+        function(data) {
+          //console.log(data);
+          board = data;
+
+          $.each(board, function(index,value){
+            $(".board-"+this.id).html(this.name);
+          });
+    });
+
   }
 }
 
