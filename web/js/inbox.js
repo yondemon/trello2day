@@ -6,42 +6,42 @@ $.getScript("https://trello.com/1/client.js?key="+trellokey, function(){
 
     authorizeTrello();
 
-//  loadBoards();
-//  loadCards("LOAD");
-    $("#list").html("");
-    $.when( getMyBoards() )
-        .then(function(data){
-            console.log("B: "+ data.length +"");
-
-            $.each(data,function(id,board){
-                //console.log('B- '+ board.id + ' ' + board.name);
-
-                $.when(getNamedListFromBoard(board.id,'INBOX'))
-                    .then(function(list){
-                        //console.log('L-- '+ list.id + ' ' + item.name + ' ' + list.name );
-
-                        $.when(getCardsFromList(list.id))
-                            .then(function(cards){
-
-                                console.log('C:  ' + cards.length + ' ['+ board.id + ' ' + board.name + ']['+ list.id + ' ' + list.name + ']');
-
-                                $.each(cards,function(id,card){
-
-//                                    console.log('-PRINT CARD- ' + card.id );
-
-                                    printCard(card,board);
-                                });
-                            });
-                    });
-            });
-        });
+    loadInbox();
 });
-
 
 $( "#reloadCards" ).click(function() {
-//  loadCards("RELOAD");
-    printTasks(cards);
+    loadInbox();
 });
+
+var loadInbox = function(){
+
+    $("#list").html("");
+    $.when( getMyBoards() )
+    .then(function(data){
+        console.log("B: "+ data.length +"");
+
+        $.each(data,function(id,board){
+            //console.log('B- '+ board.id + ' ' + board.name);
+
+            $.when(getNamedListFromBoard(board.id,'INBOX'))
+            .then(function(list){
+                //console.log('L-- '+ list.id + ' ' + item.name + ' ' + list.name );
+
+                $.when(getCardsFromList(list.id))
+                .then(function(cards){
+
+                    //console.log('C:  ' + cards.length + ' ['+ board.id + ' ' + board.name + ']['+ list.id + ' ' + list.name + ']');
+
+                    $.each(cards,function(id,card){
+
+                        //console.log('-PRINT CARD- ' + card.id );
+                        printCard(card,board);
+                    });
+                });
+            });
+        });
+    });
+};
 
 var getMyBoards = function(){
 
@@ -129,7 +129,7 @@ var printCard = function (card,board){
     var itemStr = "<li class='"+itemClass+"'><h2><a href='http://trello.com/c/"+card.id+"' target='_blank'>"+card.name+"</a></h2>"+
         "<div class='badges'>" +
         ((card.due != null)?" <span class='badge date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+" </span>":"")+
-        " <span class='badge board board-"+board.id+"'>"+board.getNamedListFromBoard+"</span>"+
+        " <span class='badge board board-"+board.id+"'>"+board.name+"</span>"+
         //" <span class='badge list list-"+card.idList+"'>"+getListName(card.idList)+"</span>"+
         "</div>"
         "</li>";
