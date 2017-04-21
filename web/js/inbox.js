@@ -18,7 +18,7 @@ var loadInbox = function(){
     $("#list").html("");
     $.when( getMyBoards() )
     .then(function(data){
-        console.log("B: "+ data.length +"");
+        //console.log("B: "+ data.length +"");
 
         $.each(data,function(id,board){
             //console.log('B- '+ board.id + ' ' + board.name);
@@ -29,7 +29,6 @@ var loadInbox = function(){
 
                 $.when(getCardsFromList(list.id))
                 .then(function(cards){
-
                     //console.log('C:  ' + cards.length + ' ['+ board.id + ' ' + board.name + ']['+ list.id + ' ' + list.name + ']');
 
                     $.each(cards,function(id,card){
@@ -37,9 +36,14 @@ var loadInbox = function(){
                         //console.log('-PRINT CARD- ' + card.id );
                         printCard(card,board);
                     });
+
+                    //console.log("SORT Cards "+ list.id);
+                    sortCardsDOM( $("#list").children() );
+
                 });
             });
         });
+
     });
 };
 
@@ -92,7 +96,7 @@ var getNamedListFromBoard = function(boardId,name){
             $.each(data,function(id,item){
 
                 if(item.name == name){
-                    console.log('-- '+ item.id + ' ' +item.name);
+                    //console.log('-- '+ item.id + ' ' +item.name);
                     dfd.resolve(item);
                 }
 
@@ -103,11 +107,27 @@ var getNamedListFromBoard = function(boardId,name){
     return dfd;
 };
 
+var sortCardsDOM = function(cardsList){
+    cardsList.sortDomElements(function(a,b){
+        var dateA = parseInt($(a).attr("data-sortkey"));
+        var dateB = parseInt($(b).attr("data-sortkey"));
+        return (dateA < dateB)? -1 : (dateA > dateB ? 1 : 0);
+    });
+}
+
+jQuery.fn.sortDomElements = (function() {
+    return function(comparator) {
+        return Array.prototype.sort.call(this, comparator).each(function(i) {
+              this.parentNode.appendChild(this);
+        });
+    };
+})();
+
 var sortCards = function(cards){
     cards.sort(function(a,b){
         var dateA = new Date(a.dateLastActivity);
         var dateB = new Date(b.dateLastActivity);
-        return a.dateLastActivity<b.dateLastActivity ? -1 : a.dateLastActivity>b.dateLastActivity ? 1 : 0;
+        return (dateA < dateB)? -1 : (dateA > dateB ? 1 : 0);
     });
 }
 
@@ -124,11 +144,20 @@ var printCard = function (card,board){
 //    console.log('-PRINT-');
 
     var itemClass = "";
+    var today = new Date();
     var itemDueDate = new Date(card.due);
+    var itemCreationDate = new Date(1000*parseInt(card.id.substring(0,8),16));
 
-    var itemStr = "<li class='"+itemClass+"'><h2><a href='http://trello.com/c/"+card.id+"' target='_blank'>"+card.name+"</a></h2>"+
+    if(card.due != null && (itemDueDate.getTime() === today.getTime() || itemDueDate.getTime() < today.getTime()) ){
+        itemClass =  itemClass + "todaytask";
+        //taskCountToday ++;
+    }
+    //console.log(card);
+
+    var itemStr = "<li class='"+itemClass+"' data-sortkey="+(itemCreationDate.getTime()/1000)+"><h2><a href='http://trello.com/c/"+card.id+"' target='_blank'>"+card.name+"</a></h2>"+
         "<div class='badges'>" +
-        ((card.due != null)?" <span class='badge date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+" </span>":"")+
+        " <span class='badge date creation-date'>"+itemCreationDate.getFullYear()+"-"+(itemCreationDate.getMonth()+1)+"-"+itemCreationDate.getDate()+" </span>"+
+        ((card.due != null)?" <span class='badge date due-date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+" </span>":"")+
         " <span class='badge board board-"+board.id+"'>"+board.name+"</span>"+
         //" <span class='badge list list-"+card.idList+"'>"+getListName(card.idList)+"</span>"+
         "</div>"

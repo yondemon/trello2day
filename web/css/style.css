@@ -150,6 +150,17 @@ div#msg {
     font-size: 0.8em;
 }
 
+.creation-date {
+    background-color: #ccebe9
+}
+.due-date {
+    background-color: #dffdcf
+}
+
+.todaytask .due-date {
+    background-color: #ebccd1
+}
+
 #scrumBoard {
     float: right;
     border: 1px solid #DDD;
