@@ -64,9 +64,16 @@ var loadCards = function(strMsg,personId){
           itemClass =  itemClass + "todaytask";
         }
 
-        $("#list").append("<li class='"+itemClass+"'><h2><a href='http://trello.com/c/"+item.id+"' target='_blank'>"+item.name+"</a></h2>"+
-          " <span class='date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+" </span>"+
-          " <span class='board'>"+getBoardName(item.idBoard)+"</span></li>");
+        var itemStr = "<li class='"+itemClass+"'><h2><a href='http://trello.com/c/"+item.id+"' target='_blank'>"+item.name+"</a></h2>"+
+          "<div class='badges'>" +
+          " <span class='badge date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+" </span>"+
+          " <span class='badge board board-"+item.idBoard+"'>"+getBoardName(item.idBoard)+"</span>" +
+          " <span class='badge list list-"+item.idList+"'>"+getListName(item.idList)+"</span>"+
+          "</div>"
+          "</li>";
+
+
+        $("#list").append(itemStr);
 
         });
 

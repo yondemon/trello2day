@@ -39,6 +39,7 @@ var getListName = function(idList){
 
           return list[idList].name;
       });
+    return "-";
   }
 }
 
@@ -126,5 +127,6 @@ var getBoardName  = function(idBoard) {
 
           return board[idBoard].name;
       });
+    return "-";
   }
 }
