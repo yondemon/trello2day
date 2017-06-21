@@ -29,9 +29,9 @@ $("#opt-member").change(function(){
 // ---- FUNCTIONS ----
 
 var loadCards = function(strMsg,personId){
-//  Trello.get('/members/'+personId+'/cards/open?fields=name,due,idBoard', 
-  Trello.get('/members/'+personId+'/cards/open', 
-    function(data) { 
+//  Trello.get('/members/'+personId+'/cards/open?fields=name,due,idBoard',
+  Trello.get('/members/'+personId+'/cards/open',
+    function(data) {
       $( "#msg" ).html(strMsg+" OK");
       $("#list").html("");
 
@@ -52,7 +52,7 @@ var loadCards = function(strMsg,personId){
       $( "#msg" ).append(": "+todoTasks.length+" tasks");
       var today = new Date();
       var futureDay = new Date(new Date().setDate(new Date().getDate()+noFutureDays));
-      
+
       $.each(todoTasks,function(id,item){
         var itemDueDate = new Date(item.due);
         var itemClass = "";
@@ -63,19 +63,17 @@ var loadCards = function(strMsg,personId){
         if(itemDueDate.getTime() === today.getTime() || itemDueDate.getTime() < today.getTime()){
           itemClass =  itemClass + "todaytask";
         }
-        
-        if(findBoard(item.idBoard)){
-          $("#list").append("<li class='"+itemClass+"'><h2><a href='http://trello.com/c/"+item.id+"' target='_blank'>"+item.name+"</a></h2>"+
-            " <span class='date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+" </span>"+ 
-            " <span class='board'>"+findBoard(item.idBoard).name+"</span></li>");
-        };
+
+        $("#list").append("<li class='"+itemClass+"'><h2><a href='http://trello.com/c/"+item.id+"' target='_blank'>"+item.name+"</a></h2>"+
+          " <span class='date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+" </span>"+
+          " <span class='board'>"+getBoardName(item.idBoard)+"</span></li>");
 
         });
 
       $( "#msg" ).append(": LOADED "+$("#list").children().length+" tasks");
 
       },
-    function(msg){ 
+    function(msg){
       console.log("ERROR getting");
       $("#msg").html("Error " + msg);
       }
