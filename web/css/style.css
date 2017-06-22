@@ -171,3 +171,10 @@ div#msg {
 #scrumBoard span {
     display: block;
 }
+
+span#totalTask {
+    font-size: 1.4em;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1.6em;
+}

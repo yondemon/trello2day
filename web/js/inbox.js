@@ -45,6 +45,10 @@ var loadInbox = function(){
         });
 
     });
+
+    $("#msg").append('<div id="scrumBoard" class=""></div>');
+    $("#scrumBoard").append('<span id="totalTask">0</span>');
+
 };
 
 var getMyBoards = function(){
@@ -165,7 +169,11 @@ var printCard = function (card,board){
 
 
     $("#list").append(itemStr);
-    $("#msg").html($("#list li").length);
+
+
+    var taskCount = $("#list li").length;
+    $("#totalTask").html(taskCount);
+
 };
 
 var printCards = function (){

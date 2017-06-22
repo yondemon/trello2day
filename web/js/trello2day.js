@@ -21,31 +21,29 @@ var authenticationFailure = function() { console.log("Failed authentication"); }
 
 var getListName = function(idList){
 
-  if(list.hasOwnProperty(idList)){
+    if(list.hasOwnProperty(idList)){
     //console.log("LIST CACHE:"+idList);
+        return list[idList].name;
 
-    return list[idList].name;
-
-  } else {
-    console.log("LIST GET: "+idList);
+    } else {
+    //console.log("LIST GET: "+idList);
 
     list[idList] = "-"; // Lo creamos para solo pedirlo una vez
     $.when(Trello.lists.get(idList))
-      .then(function(data) {
-          console.log("LIST OK: "+idList+"="+data.name);
+        .then(function(data) {
+            //console.log("LIST OK: "+idList+"="+data.name);
 
-          list[idList] = data;
-          $(".list-"+idList).html(data.name);
+            list[idList] = data;
+            $(".list-"+idList).html(data.name);
 
-          return list[idList].name;
-      });
-    return "-";
-  }
+            return list[idList].name;
+        });
+        return "-";
+    }
 }
 
 var loadBoards = function (){
-    console.log("LOAD boards");
-
+    //console.log("LOAD boards");
 
     Trello.get('/members/me/boards/all',
         function(data) {
@@ -115,12 +113,12 @@ var getBoardName  = function(idBoard) {
     return board[idBoard].name;
 
   } else {
-    console.log("BOARD GET: "+idBoard);
+    //console.log("BOARD GET: "+idBoard);
 
     board[idBoard] = "-"; // Lo creamos para solo pedirlo una vez
     $.when(Trello.boards.get(idBoard))
       .then(function(data) {
-          console.log("BOARD OK: "+idBoard+"="+data.name);
+          //console.log("BOARD OK: "+idBoard+"="+data.name);
 
           board[idBoard] = data;
           $(".board-"+idBoard).html(data.name);
