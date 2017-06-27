@@ -178,3 +178,10 @@ span#totalTask {
     text-align: center;
     line-height: 1.6em;
 }
+
+#scrumBoard span.iterationTasks,
+span.iterationTasks {
+    display: inline-block;
+    font-size: 0.8em;
+    opacity: 0.5;
+}

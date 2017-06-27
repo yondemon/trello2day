@@ -25,6 +25,8 @@ $.getScript("https://trello.com/1/client.js?key="+trellokey, function(){
   loadBoards();
 
   loadCards("LOAD");
+
+  $("#msg").append('<div id="scrumBoard" class=""></div>');
 });
 
 $( "#reloadCards" ).click(function() {
@@ -45,7 +47,7 @@ var loadCards = function(strMsg){
 //  Trello.get('/members/me/cards/open?fields=name,due,list&list=true&list_fields=all',
   Trello.get('/members/me/cards/open?fields=all&list=true&list_fields=all',
     function(data) {
-      $( "#msg" ).html(strMsg+" OK");
+      $( "#msg #text" ).html(strMsg+" OK");
       $("#list").html("");
 
       var todoTasks = [];
@@ -66,7 +68,7 @@ var loadCards = function(strMsg){
         return a.due<b.due ? -1 : a.due>b.due ? 1 : 0;
         });
 
-      $( "#msg" ).append(": "+todoTasks.length+" tasks");
+      $( "#msg #text" ).append(": "+todoTasks.length+" tasks");
       var today = new Date();
       var futureDay = new Date(new Date().setDate(new Date().getDate()+noFutureDays))
 
@@ -115,36 +117,37 @@ var loadCards = function(strMsg){
             }
         }
 
-        var itemStr = "<li class='"+itemClass+"'><h2><a href='http://trello.com/c/"+item.id+"' target='_blank'>"+item.name+"</a></h2>"+
-          "<div class='badges'>" +
-          " <span class='badge date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+" </span>"+
-          " <span class='badge board board-"+item.idBoard+"'>"+getBoardName(item.idBoard)+"</span>"+
-          " <span class='badge list list-"+item.idList+"'>"+getListName(item.idList)+"</span>"+
-          "</div>"
-          "</li>";
+            var itemStr = "<li class='"+itemClass+"'><h2><a href='http://trello.com/c/"+item.id+"' target='_blank'>"+item.name+"</a></h2>"+
+                "<div class='badges'>" +
+                " <span class='badge date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+" </span>"+
+                " <span class='badge board board-"+item.idBoard+"'>"+getBoardName(item.idBoard)+"</span>"+
+                " <span class='badge list list-"+item.idList+"'>"+getListName(item.idList)+"</span>"+
+                "</div>"
+                "</li>";
 
 
-        $("#list").append(itemStr);
+            $("#list").append(itemStr);
         });
 
 
-      $("#msg").append("[<span id='taskCountToday'>T:"+taskCountToday +"  I:"+ taskCountIteration +"  F:"+taskCountFuture+"</span>] ");
+        $("#msg #text").append("[<span id='taskCountToday'>T:"+taskCountToday +"  I:"+ taskCountIteration +"  F:"+taskCountFuture+"</span>] ");
 
-      $("#msg").append('<div id="scrumBoard" class=""></div>');
+        $("#scrumBoard").append('<span id="totalTask">'+taskCountToday
+            + ((taskCountIteration > 0)?' <span class="iterationTasks">[+' + taskCountIteration + ']</span>':'')
+            + '</span>');
 
-      $("#scrumBoard").append('<span id="totalTask">'+taskCountToday +'</span>');
-
-      if(scrumPoints){
-        //$("#msg").append("<span>Scrum Today: ("+scrumToday['done']+"/"+scrumToday['total']+")</span> ");
-        $("#scrumBoard").append('<span id="scrumIteration" class="">'+"Scrum Iteration: ("+scrum.iteration.done+"/"+scrum.iteration.total+")</span> ");
-        $("#scrumBoard").append('<span id="scrumTotal" class="">'+"Scrum: ("+scrum.total.done+"/"+scrum.total.total+")</span> ");
-      }
+        if(scrumPoints){
+            console.log($("#scrumBoard"));
+            //$("#msg").append("<span>Scrum Today: ("+scrumToday['done']+"/"+scrumToday['total']+")</span> ");
+            $("#scrumBoard").append('<span id="scrumIteration" class="">'+"Scrum Iteration: ("+scrum.iteration.done+"/"+scrum.iteration.total+")</span> ");
+            $("#scrumBoard").append('<span id="scrumTotal" class="">'+"Scrum: ("+scrum.total.done+"/"+scrum.total.total+")</span> ");
+        }
 
       //console.log(data);
       },
     function(msg){
       console.log("ERROR getting");
-      $("#msg").html("Error " + msg);
+      $("#msg #text").html("Error " + msg);
       }
     );
   };

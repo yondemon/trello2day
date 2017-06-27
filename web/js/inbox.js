@@ -7,6 +7,9 @@ $.getScript("https://trello.com/1/client.js?key="+trellokey, function(){
     authorizeTrello();
 
     loadInbox();
+
+    $("#msg").append('<div id="scrumBoard" class=""></div>');
+    $("#scrumBoard").append('<span id="totalTask">0</span>');
 });
 
 $( "#reloadCards" ).click(function() {
@@ -45,9 +48,6 @@ var loadInbox = function(){
         });
 
     });
-
-    $("#msg").append('<div id="scrumBoard" class=""></div>');
-    $("#scrumBoard").append('<span id="totalTask">0</span>');
 
 };
 
