@@ -128,3 +128,62 @@ var getBoardName  = function(idBoard) {
     return "-";
   }
 }
+
+var getMyBoards = function(){
+
+    var dfd = jQuery.Deferred();
+    Trello.get('/members/me/boards?fields=all&list=true&list_fields=all&filter=open',
+        function(data) {
+
+            dfd.resolve(data);
+
+        });
+
+    return dfd;
+};
+
+var getCardsFromList = function(listId){
+
+    var dfd = jQuery.Deferred();
+
+//    console.log('---GET LIST '+listId);
+
+    Trello.get('/lists/'+ listId +'/cards',
+        function(data) {
+//            console.log('---GOT LIST '+listId);
+
+            var cards = [];
+            $.each(data,function(id,item){
+                //console.log('--- '+item.name);
+                cards.push(item);
+            });
+
+//            console.log('---SORT LIST '+listId + '['+ data.length+' / '+ cards.length+']');
+            sortCards(cards);
+
+//            console.log('---RESOLVE LIST '+listId);
+            dfd.resolve(cards);
+        });
+
+    return dfd;
+};
+
+var getNamedListFromBoard = function(boardId,name, cards = false){
+
+    var dfd = jQuery.Deferred();
+
+    Trello.get('/boards/'+ boardId +'/lists'+(cards?'?cards=open':''),
+        function(data) {
+            $.each(data,function(id,item){
+
+                if(item.name == name){
+                    //console.log('-- '+ item.id + ' ' +item.name);
+                    dfd.resolve(item);
+                }
+
+            });
+
+        });
+
+    return dfd;
+};

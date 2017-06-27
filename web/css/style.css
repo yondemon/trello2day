@@ -95,7 +95,18 @@ div#msg {
 #list {
     padding: 0px 20px;
     max-width: 350px;
+    float: left;
 }
+
+ul#list-inbox,
+ul#list-backlogs {
+    display: block;
+    float: left;
+    background: #FFF;
+    padding: 10px;
+    list-style-type: none;
+}
+
 
 #list li {
     border: 1px solid #999;
