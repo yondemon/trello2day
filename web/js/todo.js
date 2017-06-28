@@ -18,19 +18,21 @@ var scrumInit = {
 var scrum;
 
 $.getScript("https://trello.com/1/client.js?key="+trellokey, function(){
-  console.log("Trello Client Script loaded.");
+    console.log("Trello Client Script loaded.");
 
-  authorizeTrello();
+    authorizeTrello();
 
-  loadBoards();
+    $.when( loadBoards() )
+        .then(function(data){
+            loadCards("LOAD");
+        });
 
-  loadCards("LOAD");
-
-  $("#msg").append('<div id="scrumBoard" class=""></div>');
+    $("#msg").append('<div id="scrumBoard" class=""></div>');
 });
 
 $( "#reloadCards" ).click(function() {
-  loadCards("RELOAD");
+    $("#scrumBoard").html("");
+    loadCards("RELOAD");
 });
 
 
@@ -138,17 +140,16 @@ var loadCards = function(strMsg){
             + '</span>');
 
         if(scrumPoints){
-            console.log($("#scrumBoard"));
             //$("#msg").append("<span>Scrum Today: ("+scrumToday['done']+"/"+scrumToday['total']+")</span> ");
             $("#scrumBoard").append('<span id="scrumIteration" class="">'+"Scrum Iteration: ("+scrum.iteration.done+"/"+scrum.iteration.total+")</span> ");
             $("#scrumBoard").append('<span id="scrumTotal" class="">'+"Scrum: ("+scrum.total.done+"/"+scrum.total.total+")</span> ");
         }
 
       //console.log(data);
-      },
-    function(msg){
-      console.log("ERROR getting");
-      $("#msg #text").html("Error " + msg);
-      }
+        },
+        function(msg){
+            console.log("ERROR getting");
+            $("#msg #text").html("Error " + msg);
+        }
     );
   };

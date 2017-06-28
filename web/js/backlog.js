@@ -27,7 +27,7 @@ var loadBacklogs = function(){
             $.when(getNamedListFromBoard(board.id,'Backlog',true))
             .then(function(list){
                 //console.log('L-- '+ list.id + ' ' + list.name );
-                console.log(list);
+                //console.log(list);
                 printBacklogList(list,board);
             });
         
@@ -37,10 +37,9 @@ var loadBacklogs = function(){
 
 var printBacklogList = function (list,board){
     var count = list.cards.length;
-    console.log('-PRINT-');
 
     var itemClass = "";
-    console.log("ID:"+list.id+"b"+board);
+//    console.log("ID:"+list.id+"b"+board);
 
     var itemStr ='<li><a href="http://trello.com/b/'+board.id+'/">'+board.name+'</a> [<span class="board-'+board.id+'-count">'+count+'</span>]</li>';
 
