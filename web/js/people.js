@@ -13,13 +13,13 @@ $.getScript("https://trello.com/1/client.js?key="+trellokey, function(){
 
 $("#reloadCards").click(function() {
   var person = $("#opt-member").val();
-  console.log(person);
+  //console.log(person);
 
   loadCards("RELOAD "+$("#opt-member option:selected").text(),person);
 });
 
 $("#opt-member").change(function(){
-  console.log(this.value);
+  //console.log(this.value);
   loadCards("LOAD "+$("#opt-member option:selected").text(),this.value);
 });
 
@@ -37,7 +37,7 @@ var loadCards = function(strMsg,personId){
 
       var todoTasks = [];
       $.each(data,function(id,item){
-        console.log(item);
+//        console.log(item);
         if(item.due !== null){
           todoTasks.push(item);
         }

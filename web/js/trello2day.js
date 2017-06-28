@@ -18,55 +18,63 @@ var authenticationSuccess = function() { console.log("Successful authentication"
 var authenticationFailure = function() { console.log("Failed authentication"); };
 
 
+function findObjectByAttribute (items, attribute, value) {
+    for (var i = 0; i < items.length; i++) {
+        if (items[i][attribute] === value) {
+            return items[i];
+        }
+    }
+    return false;
+}
 
 var getListName = function(idList){
-
-    if(list.hasOwnProperty(idList)){
-    //console.log("LIST CACHE:"+idList);
+    if(typeof list[idList] != 'undefined'){
+        //console.log("LIST CACHE:"+idList + "=" + list[idList].name);
         return list[idList].name;
 
     } else {
-    //console.log("LIST GET: "+idList);
+        //console.log("LIST GET: "+idList);
 
-    list[idList] = "-"; // Lo creamos para solo pedirlo una vez
-    $.when(Trello.lists.get(idList))
-        .then(function(data) {
-            //console.log("LIST OK: "+idList+"="+data.name);
+        list[idList] = "-"; // Lo creamos para solo pedirlo una vez
+        $.when(Trello.lists.get(idList))
+            .then(function(data) {
+                //console.log("LIST OK: "+idList+"="+data.name);
 
-            list[idList] = data;
-            $(".list-"+idList).html(data.name);
+                list[idList] = data;
+                $(".list-"+idList).html(data.name);
 
-            return list[idList].name;
-        });
+                return list[idList].name;
+            });
         return "-";
     }
 }
 
 var loadBoards = function (){
-    //console.log("LOAD boards");
+    console.log("LOAD boards");
 
-    Trello.get('/members/me/boards/all',
+    Trello.get('/members/me/boards?filter=open',
         function(data) {
             //console.log(data);
             board = data;
 
-            $.each(board, function(index,value){
+            $.each(data, function(index,value){
                 $(".board-"+this.id).html(this.name);
+//                console.log("(ME) board: " + this.id + " " + this.name);
             });
+
+            if(typeof organization !== 'undefined'){
+                Trello.get('/organizations/'+organization+'/boards?filter=open',
+                function(data) {
+                    $.merge(board, data);
+
+                    $.each(data, function(index,value){
+                        $(".board-"+this.id).html(this.name);
+//                        console.log("(ORG) board:" + this.id + " " + this.name);
+                    });
+                });
+            }
         });
 
-
-    if(typeof organization !== 'undefined'){
-        Trello.get('/organizations/'+organization+'/boards/all',
-            function(data) {
-                //console.log(data);
-                $.merge(board, data);
-
-                $.each(board, function(index,value){
-                    $(".board-"+this.id).html(this.name);
-                });
-            });
-    }
 }
 
 var loadTeam = function(){
@@ -107,26 +115,26 @@ var printCards = function(data) {
 
 var getBoardName  = function(idBoard) {
 
-  if(board.hasOwnProperty(idBoard)){
-    //console.log("BOARD CACHE:"+idList);
+    var boardFound = findObjectByAttribute (board, 'id', idBoard);
+    if(boardFound !== false ){
+        //console.log("BOARD CACHE:"+idBoard+"="+boardFound.name);
+        return boardFound.name;
 
-    return board[idBoard].name;
+    } else {
+        //console.log("BOARD GET: "+idBoard);
 
-  } else {
-    //console.log("BOARD GET: "+idBoard);
+        board[idBoard] = "-"; // Lo creamos para solo pedirlo una vez
+        $.when(Trello.boards.get(idBoard))
+            .then(function(data) {
+                //console.log("BOARD OK: "+idBoard+"="+data.name);
 
-    board[idBoard] = "-"; // Lo creamos para solo pedirlo una vez
-    $.when(Trello.boards.get(idBoard))
-      .then(function(data) {
-          //console.log("BOARD OK: "+idBoard+"="+data.name);
+                board[idBoard] = data;
+                $(".board-"+idBoard).html(data.name);
 
-          board[idBoard] = data;
-          $(".board-"+idBoard).html(data.name);
-
-          return board[idBoard].name;
-      });
-    return "-";
-  }
+              return board[idBoard].name;
+          });
+        return "-";
+    }
 }
 
 var getMyBoards = function(){
