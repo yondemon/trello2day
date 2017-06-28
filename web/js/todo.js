@@ -132,6 +132,7 @@ var loadCards = function(strMsg){
 
         $("#msg #text").append("[<span id='taskCountToday'>T:"+taskCountToday +"  I:"+ taskCountIteration +"  F:"+taskCountFuture+"</span>] ");
 
+        $("#scrumBoard").remove("#totalTask");
         $("#scrumBoard").append('<span id="totalTask">'+taskCountToday
             + ((taskCountIteration > 0)?' <span class="iterationTasks">[+' + taskCountIteration + ']</span>':'')
             + '</span>');
