@@ -10,11 +10,24 @@ $.getScript("https://trello.com/1/client.js?key="+trellokey, function(){
 
     $("#msg").append('<div id="scrumBoard" class=""></div>');
     $("#scrumBoard").append('<span id="totalTask">0</span>');
+
+    $("#list-inbox").on('click','input[type=checkbox]', selectedInbox );
 });
 
 $( "#reloadCards" ).click(function() {
     loadInbox();
 });
+
+var selectedInbox = function(event){
+    var inbox = $(event.target);
+    var boardid = $(event.target).data('id');
+
+    if(inbox.prop('checked')){
+        $('li.card[data-boardid=' + boardid + ']').show();
+    } else {
+        $('li.card[data-boardid=' + boardid + ']').hide();
+    }
+}
 
 var loadInbox = function(){
 
@@ -103,16 +116,17 @@ var printCard = function (card,board){
     var itemCreationDate = new Date(1000*parseInt(card.id.substring(0,8),16));
 
     if(card.due != null && (itemDueDate.getTime() === today.getTime() || itemDueDate.getTime() < today.getTime()) ){
-        itemClass =  itemClass + "todaytask";
+        itemClass =  itemClass + " todaytask";
         //taskCountToday ++;
     }
     //console.log(card);
 
-    var itemStr = "<li class='"+itemClass+"' data-sortkey="+(itemCreationDate.getTime()/1000)+"><h2><a href='http://trello.com/c/"+card.id+"' target='_blank'>"+card.name+"</a></h2>"+
+    var itemStr = '<li class="card '+itemClass + '" data-sortkey="' + (itemCreationDate.getTime()/1000) + '" data-boardid="' + board.id + '">' + 
+        "<h2><a href='http://trello.com/c/"+card.id+"' target='_blank'>"+card.name+"</a></h2>" +
         "<div class='badges'>" +
         " <span class='badge date creation-date'>"+itemCreationDate.getFullYear()+"-"+(itemCreationDate.getMonth()+1)+"-"+itemCreationDate.getDate()+" </span>"+
         ((card.due != null)?" <span class='badge date due-date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+" </span>":"")+
-        " <span class='badge board board-"+board.id+"'>"+board.name+"</span>"+
+        " <span class='badge board board-" + board.id + "'>"+board.name+"</span>"+
         //" <span class='badge list list-"+card.idList+"'>"+getListName(card.idList)+"</span>"+
         "</div>"
         "</li>";
@@ -132,7 +146,7 @@ var printInboxItem = function (list,board,count){
     var itemClass = "";
 //    console.log("ID:"+list.id+"b"+board);
 
-    var itemStr ='<li><a href="http://trello.com/b/'+board.id+'/">'+board.name+'</a> [<span class="board-'+board.id+'-count">'+count+'</span>]</li>';
+    var itemStr ='<li><input type="checkbox" data-id="' + board.id + '" checked/><a href="http://trello.com/b/'+board.id+'/">'+board.name+'</a> [<span class="board-'+board.id+'-count">'+count+'</span>]</li>';
 
     $("#list-inbox").append(itemStr);
 };
