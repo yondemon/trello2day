@@ -23,9 +23,14 @@ var selectedInbox = function(event){
     var boardid = $(event.target).data('id');
 
     if(inbox.prop('checked')){
-        $('li.card[data-boardid=' + boardid + ']').show();
+        $('li.card[data-boardid=' + boardid + ']').addClass('show').show();
+        $('#totalTask').html($('li.card.show').length);
+
     } else {
-        $('li.card[data-boardid=' + boardid + ']').hide();
+
+        $('li.card[data-boardid=' + boardid + ']').removeClass('show').hide();
+        $('#totalTask').html($('li.card.show').length);
+
     }
 }
 
@@ -121,7 +126,7 @@ var printCard = function (card,board){
     }
     //console.log(card);
 
-    var itemStr = '<li class="card '+itemClass + '" data-sortkey="' + (itemCreationDate.getTime()/1000) + '" data-boardid="' + board.id + '">' + 
+    var itemStr = '<li class="card '+itemClass + ' show" data-sortkey="' + (itemCreationDate.getTime()/1000) + '" data-boardid="' + board.id + '">' + 
         "<h2><a href='http://trello.com/c/"+card.id+"' target='_blank'>"+card.name+"</a></h2>" +
         "<div class='badges'>" +
         " <span class='badge date creation-date'>"+itemCreationDate.getFullYear()+"-"+(itemCreationDate.getMonth()+1)+"-"+itemCreationDate.getDate()+" </span>"+
