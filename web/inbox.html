@@ -15,28 +15,33 @@
 
 <nav>
     <ul>
-        <li class="active"><a href="index.html">Today</a></li>
+        <li><a href="index.html">Today</a></li>
         <li><a href="people.html">People</a></li>
-        <li><a href="inbox.html">Inbox</a></li>
+        <li class="active"><a href="inbox.html">Inbox</a></li>
         <li><a href="backlog.html">Backlog</a></li>
     </ul>
 </nav>
 
 <div class="content">
+
   <div class="info">
-      <p>Tasks assigned to ME and with due date, ordered by due date</p>
+      <p>Tasks on INBOX lists on every board.</p>
   </div>
 
   <div id="msg">
+    <span id="text"></span>
   </div>
 
-  <div id="list">
-  </div>
+  <ul id="list">
+  </ul>
+
+  <ul id="list-inbox">
+  </ul>
 </div>
 
 <script src="js/jquery-2.1.4.js"></script>
 <script src="js/config.js"></script>
 <script src="js/trello2day.js"></script>
-<script src="js/todo.js"></script>
+<script src="js/inbox.js"></script>
 </body>
 </html>

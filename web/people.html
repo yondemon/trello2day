@@ -1,23 +1,48 @@
 <html>
 <head>
-  <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
 </head>
 <body>
 
-<div id="msg">
+<div id="header">
+  <h1 class="board-header-btn-text" dir="auto">Trello2day</h1>
+
+  <div class="header-buttons">
+    <button class="header-btn" id="reloadCards">Reload</button>
   </div>
-
-<form>
-  <select id="opt-member"></select>
-</form>
-<button id="reloadCards">Reload</button>
-
-<div id="list">
 </div>
 
-<script src="jquery-2.1.4.js"></script>
-<script src="config.js"></script>
-<script src="trello2day.js"></script>
-<script src="people.js"></script>
+<nav>
+    <ul>
+        <li><a href="index.html">Today</a></li>
+        <li class="active"><a href="people.html">People</a></li>
+        <li><a href="inbox.html">Inbox</a></li>
+        <li><a href="backlog.html">Backlog</a></li>
+    </ul>
+</nav>
+
+<div class="content">
+
+    <div class="info">
+        <p>Tasks assigned to 1 person on your organization</p>
+    </div>
+
+    <div id="msg">
+      </div>
+
+    <form>
+      <select id="opt-member"></select>
+    </form>
+
+    <div id="list">
+    </div>
+
+</div>
+
+<script src="js/jquery-2.1.4.js"></script>
+<script src="js/config.js"></script>
+<script src="js/trello2day.js"></script>
+<script src="js/people.js"></script>
 </body>
 </html>
