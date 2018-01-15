@@ -161,6 +161,19 @@ ul#list-backlogs {
     font-size: 0.8em;
 }
 
+
+.list-doing {
+    background-color: #4fb100; // GREEN
+}
+
+.list-waiting {
+    background-color: #b19c00; // YELLOW
+}
+
+.list-to-do {
+    background-color: #b10000; // RED
+}
+
 .creation-date {
     background-color: #ccebe9
 }
