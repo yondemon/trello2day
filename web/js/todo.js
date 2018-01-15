@@ -119,11 +119,12 @@ var loadCards = function(strMsg){
             }
         }
 
+            listName = getListName(item.idList);
             var itemStr = "<li class='"+itemClass+"'><h2><a href='http://trello.com/c/"+item.id+"' target='_blank'>"+item.name+"</a></h2>"+
                 "<div class='badges'>" +
                 " <span class='badge date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+" </span>"+
                 " <span class='badge board board-"+item.idBoard+"'>"+getBoardName(item.idBoard)+"</span>"+
-                " <span class='badge list list-"+item.idList+"'>"+getListName(item.idList)+"</span>"+
+                " <span class='badge list list-"+item.idList+" list-"+slugify(listName)+"'>"+listName+"</span>"+
                 "</div>"
                 "</li>";
 
