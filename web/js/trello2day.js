@@ -27,7 +27,7 @@ function findObjectByAttribute (items, attribute, value) {
     return false;
 }
 
-var getListName = function(idList){
+function getListName(idList){
     if(typeof list[idList] != 'undefined'){
         //console.log("LIST CACHE:"+idList + "=" + list[idList].name);
         return list[idList].name;
@@ -41,7 +41,9 @@ var getListName = function(idList){
                 //console.log("LIST OK: "+idList+"="+data.name);
 
                 list[idList] = data;
-                $(".list-"+idList).html(data.name);
+                $(".list-"+idList)
+                    .html(data.name).
+                    .addClass( 'list-'+slugify(data.name) );
 
                 return list[idList].name;
             });
@@ -49,7 +51,7 @@ var getListName = function(idList){
     }
 }
 
-var loadBoards = function (){
+function loadBoards(){
     console.log("LOAD boards");
 
     Trello.get('/members/me/boards?filter=open',
@@ -77,7 +79,7 @@ var loadBoards = function (){
 
 }
 
-var loadTeam = function(){
+function loadTeam(){
 //  console.log("LOAD team");
   $( "#msg" ).text("LOAD TEAM");
   //console.log(board);
@@ -105,7 +107,7 @@ var loadTeam = function(){
   }
 }
 
-var printCards = function(data) {
+function printCards(data) {
     $( "#msg" ).html("OK");
     data.each(function(item){
       $("$list").append(""+item);
@@ -113,7 +115,7 @@ var printCards = function(data) {
     //console.log(data);
     };
 
-var getBoardName  = function(idBoard) {
+function getBoardName(idBoard) {
 
     var boardFound = findObjectByAttribute (board, 'id', idBoard);
     if(boardFound !== false ){
@@ -137,7 +139,7 @@ var getBoardName  = function(idBoard) {
     }
 }
 
-var getMyBoards = function(){
+function getMyBoards(){
 
     var dfd = jQuery.Deferred();
     Trello.get('/members/me/boards?fields=all&list=true&list_fields=all&filter=open',
@@ -150,7 +152,7 @@ var getMyBoards = function(){
     return dfd;
 };
 
-var getCardsFromList = function(listId){
+function getCardsFromList(listId){
 
     var dfd = jQuery.Deferred();
 
@@ -176,7 +178,7 @@ var getCardsFromList = function(listId){
     return dfd;
 };
 
-var getNamedListFromBoard = function(boardId,name, cards = false){
+function getNamedListFromBoard(boardId,name, cards = false){
 
     var dfd = jQuery.Deferred();
 

@@ -117,12 +117,19 @@ var loadCards = function(strMsg){
             }
         }
 
-            listName = getListName(item.idList);
+            var listName = getListName(item.idList);
+            var listNameSlug;
+            if(typeof listName != 'undefined'){
+              listNameSlug = "list-"+slugify(listName);
+            } else {
+              listNameSlug = "";
+            }
+    
             var itemStr = "<li class='"+itemClass+"'><h2><a href='http://trello.com/c/"+item.id+"' target='_blank'>"+item.name+"</a></h2>"+
                 "<div class='badges'>" +
                 " <span class='badge date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+" </span>"+
                 " <span class='badge board board-"+item.idBoard+"'>"+getBoardName(item.idBoard)+"</span>"+
-                " <span class='badge list list-"+item.idList+" list-"+slugify(listName)+"'>"+listName+"</span>"+
+                " <span class='badge list list-"+item.idList+" "+listNameSlug+"'>"+listName+"</span>"+
                 "</div>"
                 "</li>";
 
