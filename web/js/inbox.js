@@ -10,7 +10,6 @@ $.getScript("https://trello.com/1/client.js?key="+trellokey, function(){
 
     $("#msg").append('<div id="scrumBoard" class=""></div>');
     $("#scrumBoard").append('<span id="totalTask">0</span>');
-
     $("#list-inbox").on('click','input[type=checkbox]', selectedInbox );
 });
 

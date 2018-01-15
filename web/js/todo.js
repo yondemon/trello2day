@@ -62,8 +62,6 @@ var loadCards = function(strMsg){
         }
       });
 
-
-
       todoTasks.sort(function(a,b){
         var dateA = new Date(a.due);
         var dateB = new Date(b.due);
