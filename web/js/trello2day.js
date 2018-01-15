@@ -42,7 +42,7 @@ function getListName(idList){
 
                 list[idList] = data;
                 $(".list-"+idList)
-                    .html(data.name).
+                    .html(data.name)
                     .addClass( 'list-'+slugify(data.name) );
 
                 return list[idList].name;
