@@ -27,6 +27,27 @@ function findObjectByAttribute (items, attribute, value) {
     return false;
 }
 
+function updateListStatus(idList,slug,name){
+
+    var check = $('li.listStatus-'+slug);
+    if(check.length > 0) {
+        $('li.listStatus-' + idList).remove();
+    } else {
+        $('li.listStatus-' + idList)
+            .addClass( 'listStatus-'+slug )
+            .removeClass( 'listStatus-'+idList);
+
+        $('li.listStatus-' + slug + ' input[type="checkbox"]').data('slug',slug);
+        $('li.listStatus-' + slug + ' .list-name').text(name);
+    }
+}
+
+function updateCardsList(idList,slug,name){
+    $('li.card[data-listid="' + idList + '"]')
+        .data('listslug',slug)
+        .attr('data-listslug',slug);
+}
+
 function getListName(idList){
     if(typeof list[idList] != 'undefined'){
         //console.log("LIST CACHE:"+idList + "=" + list[idList].name);
@@ -41,9 +62,15 @@ function getListName(idList){
                 //console.log("LIST OK: "+idList+"="+data.name);
 
                 list[idList] = data;
+                var slug = slugify(data.name);
+
                 $(".list-"+idList)
                     .html(data.name)
-                    .addClass( 'list-'+slugify(data.name) );
+                    .addClass( 'list-'+slug );
+
+                updateCardsList(idList,slug,data.name);
+
+                updateListStatus(idList,slug,data.name);
 
                 return list[idList].name;
             });

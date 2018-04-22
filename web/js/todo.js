@@ -17,6 +17,8 @@ var scrumInit = {
   };
 var scrum;
 
+var listStatus = {};
+
 $.getScript("https://trello.com/1/client.js?key="+trellokey, function(){
     console.log("Trello Client Script loaded.");
 
@@ -28,6 +30,7 @@ $.getScript("https://trello.com/1/client.js?key="+trellokey, function(){
         });
 
     $("#msg").append('<div id="scrumBoard" class=""></div>');
+    $("#list-status").on('click','input[type=checkbox]', selectedStatus );
 });
 
 $( "#reloadCards" ).click(function() {
@@ -35,6 +38,29 @@ $( "#reloadCards" ).click(function() {
     loadCards("RELOAD");
 });
 
+function appendStatusList(idList,listNameSlug,listName){
+
+  var itemStr ='<li class="listStatus-'+idList+'"><input type="checkbox" data-slug="' + listNameSlug + '" checked/><span class="list-name">'+listName+'</span></li>';
+  $('#list-status').append(itemStr);
+
+}
+
+var selectedStatus = function(event){
+    var statusCheckbox = $(event.target);
+    var slug = $(event.target).data('slug');
+    
+    if(statusCheckbox.prop('checked')){
+        
+        $('li.card[data-listslug="' + slug + '"]').addClass('show').show();
+        $('#totalTask').html($('li.card.show').length);
+
+    } else {
+        
+        $('li.card[data-listslug="' + slug + '"]').removeClass('show').hide();
+        $('#totalTask').html($('li.card.show').length);
+
+    }
+}
 
 
 
@@ -120,21 +146,30 @@ var loadCards = function(strMsg){
             var listName = getListName(item.idList);
             var listNameSlug;
             if(typeof listName != 'undefined'){
-              listNameSlug = "list-"+slugify(listName);
+              var slug = slugify(listName);
+              listNameSlug = "list-"+slug;
+
+              appendStatusList(item.idList,slug,listName);
             } else {
               listNameSlug = "";
             }
     
-            var itemStr = "<li class='"+itemClass+"'><h2><a href='http://trello.com/c/"+item.id+"' target='_blank'>"+item.name+"</a></h2>"+
+            var daysLate = Math.floor( (Date.now() - itemDueDate.getTime() ) / 86400000);
+
+            var status = item.idList;
+
+            var itemStr = '<li class="card '+itemClass+' '+ listNameSlug +'" data-listid="'+ item.idList +'">' + 
+                '<h2><a href="http://trello.com/c/'+item.id+'" target="_blank">'+item.name+'</a></h2>'+
                 "<div class='badges'>" +
-                " <span class='badge date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+" </span>"+
+                " <span class='badge date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+
+                  " ["+daysLate+"]</span>"+
                 " <span class='badge board board-"+item.idBoard+"'>"+getBoardName(item.idBoard)+"</span>"+
                 " <span class='badge list list-"+item.idList+" "+listNameSlug+"'>"+listName+"</span>"+
                 "</div>"
                 "</li>";
 
-
             $("#list").append(itemStr);
+
         });
 
 
@@ -151,6 +186,19 @@ var loadCards = function(strMsg){
             $("#scrumBoard").append('<span id="scrumTotal" class="">'+"Scrum: ("+scrum.total.done+"/"+scrum.total.total+")</span> ");
         }
 
+        /*
+        console.log(list);
+        console.log(typeof list);
+        for( itemid in list){
+          console.log(list[itemid]);
+          item = list[itemid];
+
+          if($('#list-status li.list-'+slugify(item.name)+'').length < 0 ){
+            $("#list-status").append($('<li class="list-'+slugify(item.name)+'">'+item.name+'</li>'));
+          }
+          
+        }
+        */
       //console.log(data);
         },
         function(msg){
