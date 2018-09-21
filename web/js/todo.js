@@ -81,10 +81,12 @@ var loadCards = function(strMsg){
       var todoTasks = [];
       $.each(data,function(id,item){
 
-        if(item.due !== null){
-          //console.log(item);
+        if(item.due !== null && item.dueComplete == false ){
+          //console.log({item},item.dueComplete);
 
           todoTasks.push(item);
+        } else {
+          //console.log('NO!',{item});
         }
       });
 
