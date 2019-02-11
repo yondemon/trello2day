@@ -61,6 +61,7 @@ body {
 
 nav ul {
     margin-bottom: 0px;
+    padding-left: 0;
 }
 nav li {
     display: inline-block;
@@ -80,7 +81,7 @@ nav li.active {
 }
 
 .content > div p {
-    position: absolute;
+    // position: absolute;
     top: 0;
     right: 0;
     padding: 3px 10px;
@@ -92,10 +93,19 @@ div#msg {
     padding: 0.3em;
 }
 
+.info {
+    position: relative;
+}
+
 #list {
     padding: 0px 20px;
     max-width: 350px;
     float: left;
+}
+@media only screen and (max-width : 320px) {
+  #list {
+    max-width: 350px;
+  }
 }
 
 ul#list-status,
