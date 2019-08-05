@@ -30,15 +30,16 @@ $("#opt-member").change(function(){
 
 var loadCards = function(strMsg,personId){
 //  Trello.get('/members/'+personId+'/cards/open?fields=name,due,idBoard',
-  Trello.get('/members/'+personId+'/cards/open',
+  // Trello.get('/members/'+personId+'/cards/open',
+  Trello.get('/members/'+personId+'?cards=open',
     function(data) {
       $( "#msg" ).html(strMsg+" OK");
       $("#list").html("");
 
       var todoTasks = [];
-      $.each(data,function(id,item){
+      $.each(data.cards,function(id,item){
 //        console.log(item);
-        if(item.due !== null){
+        if(item.due !== null && item.dueComplete == false ){
           todoTasks.push(item);
         }
       });
