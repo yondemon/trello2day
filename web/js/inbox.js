@@ -64,6 +64,8 @@ var loadInbox = function(){
                     //console.log("SORT Cards "+ list.id);
                     sortCardsDOM( $("#list").children() );
 
+                    sortCardsDOM( $("#list-inbox").children(), 'DESC' );
+
                 //});
             });
         });
@@ -72,17 +74,20 @@ var loadInbox = function(){
 
 };
 
-
-
-
-
-
-
-var sortCardsDOM = function(cardsList){
+var sortCardsDOM = function(cardsList, order = 'ASC'){
     cardsList.sortDomElements(function(a,b){
-        var dateA = parseInt($(a).attr("data-sortkey"));
-        var dateB = parseInt($(b).attr("data-sortkey"));
-        return (dateA < dateB)? -1 : (dateA > dateB ? 1 : 0);
+        var dataA = parseInt($(a).attr("data-sortkey"));
+        var dataB = parseInt($(b).attr("data-sortkey"));
+        switch(order){
+            case 'DESC':
+                return (dataA > dataB)? -1 : (dataA < dataB ? 1 : 0);
+                break;
+            case 'ASC':
+            default:
+                return (dataA < dataB)? -1 : (dataA > dataB ? 1 : 0);    
+                break;
+        }
+        
     });
 }
 
@@ -138,7 +143,6 @@ var printCard = function (card,board){
 
     $("#list").append(itemStr);
 
-
     var taskCount = $("#list li").length;
     $("#totalTask").html(taskCount);
 
@@ -150,7 +154,10 @@ var printInboxItem = function (list,board,count){
     var itemClass = "";
 //    console.log("ID:"+list.id+"b"+board);
 
-    var itemStr ='<li><input type="checkbox" data-id="' + board.id + '" checked/><a href="http://trello.com/b/'+board.id+'/">'+board.name+'</a> [<span class="board-'+board.id+'-count">'+count+'</span>]</li>';
+    var itemStr ='<li data-sortkey="'+count+'">'
+        +'<input type="checkbox" data-id="' + board.id + '" checked/>'
+        +'<a href="http://trello.com/b/'+board.id+'/">'+board.name+'</a>'
+        +'[<span class="board-'+board.id+'-count">'+count+'</span>]</li>';
 
     $("#list-inbox").append(itemStr);
 };
