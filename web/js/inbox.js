@@ -10,33 +10,18 @@ $.getScript("https://trello.com/1/client.js?key="+trellokey, function(){
 
     $("#msg").append('<div id="scrumBoard" class=""></div>');
     $("#scrumBoard").append('<span id="totalTask">0</span>');
-    $("#list-inbox").on('click','input[type=checkbox]', selectedInbox );
+    $("#list-boards").on('click','input[type=checkbox]', selectedBoard );
 });
 
 $( "#reloadCards" ).click(function() {
     loadInbox();
 });
 
-var selectedInbox = function(event){
-    var inbox = $(event.target);
-    var boardid = $(event.target).data('id');
-
-    if(inbox.prop('checked')){
-        $('li.card[data-boardid=' + boardid + ']').addClass('show').show();
-        $('#totalTask').html($('li.card.show').length);
-
-    } else {
-
-        $('li.card[data-boardid=' + boardid + ']').removeClass('show').hide();
-        $('#totalTask').html($('li.card.show').length);
-
-    }
-}
-
 var loadInbox = function(){
 
     $("#list").html("");
-    $("#list-inbox").html("");
+    $("#list-boards").html("");
+
     $.when( getMyBoards() )
     .then(function(data){
         //console.log("B: "+ data.length +"");
@@ -53,7 +38,8 @@ var loadInbox = function(){
                 //.then(function(cards){
                     //console.log('C:  ' + cards.length + ' ['+ board.id + ' ' + board.name + ']['+ list.id + ' ' + list.name + ']');
 
-                    printInboxItem(list,board, list.cards.length);
+                    printBoardListItem(list, board, list.cards.length);
+                    sortCardsDOM( $("#list-boards").children(), 'DESC' );
 
                     $.each(list.cards,function(id,card){
 
@@ -64,8 +50,6 @@ var loadInbox = function(){
                     //console.log("SORT Cards "+ list.id);
                     sortCardsDOM( $("#list").children() );
 
-                    sortCardsDOM( $("#list-inbox").children(), 'DESC' );
-
                 //});
             });
         });
@@ -73,48 +57,6 @@ var loadInbox = function(){
     });
 
 };
-
-var sortCardsDOM = function(cardsList, order = 'ASC'){
-    cardsList.sortDomElements(function(a,b){
-        var dataA = parseInt($(a).attr("data-sortkey"));
-        var dataB = parseInt($(b).attr("data-sortkey"));
-        switch(order){
-            case 'DESC':
-                return (dataA > dataB)? -1 : (dataA < dataB ? 1 : 0);
-                break;
-            case 'ASC':
-            default:
-                return (dataA < dataB)? -1 : (dataA > dataB ? 1 : 0);    
-                break;
-        }
-        
-    });
-}
-
-jQuery.fn.sortDomElements = (function() {
-    return function(comparator) {
-        return Array.prototype.sort.call(this, comparator).each(function(i) {
-              this.parentNode.appendChild(this);
-        });
-    };
-})();
-
-var sortCards = function(cards){
-    cards.sort(function(a,b){
-        var dateA = new Date(a.dateLastActivity);
-        var dateB = new Date(b.dateLastActivity);
-        return (dateA < dateB)? -1 : (dateA > dateB ? 1 : 0);
-    });
-}
-
-
-var sortTasks = function(){
-    tasks.sort(function(a,b){
-        var dateA = new Date(a.dateLastActivity);
-        var dateB = new Date(b.dateLastActivity);
-        return a.dateLastActivity<b.dateLastActivity ? -1 : a.dateLastActivity>b.dateLastActivity ? 1 : 0;
-    });
-}
 
 var printCard = function (card,board){
 //    console.log('-PRINT-');
@@ -146,20 +88,6 @@ var printCard = function (card,board){
     var taskCount = $("#list li").length;
     $("#totalTask").html(taskCount);
 
-};
-
-var printInboxItem = function (list,board,count){
-//    console.log('-PRINT-');
-
-    var itemClass = "";
-//    console.log("ID:"+list.id+"b"+board);
-
-    var itemStr ='<li data-sortkey="'+count+'">'
-        +'<input type="checkbox" data-id="' + board.id + '" checked/>'
-        +'<a href="http://trello.com/b/'+board.id+'/">'+board.name+'</a>'
-        +'[<span class="board-'+board.id+'-count">'+count+'</span>]</li>';
-
-    $("#list-inbox").append(itemStr);
 };
 
 var printCards = function (){

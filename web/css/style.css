@@ -109,7 +109,7 @@ div#msg {
 }
 
 ul#list-status,
-ul#list-inbox,
+ul#list-boards,
 ul#list-backlogs {
     display: block;
     float: left;

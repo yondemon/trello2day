@@ -31,6 +31,7 @@ $.getScript("https://trello.com/1/client.js?key="+trellokey, function(){
 
     $("#msg").append('<div id="scrumBoard" class=""></div>');
     $("#list-status").on('click','input[type=checkbox]', selectedStatus );
+    $("#list-boards").on('click','input[type=checkbox]', selectedBoard ); 
 });
 
 $( "#reloadCards" ).click(function() {
@@ -44,24 +45,6 @@ function appendStatusList(idList,listNameSlug,listName){
   $('#list-status').append(itemStr);
 
 }
-
-var selectedStatus = function(event){
-    var statusCheckbox = $(event.target);
-    var slug = $(event.target).data('slug');
-    
-    if(statusCheckbox.prop('checked')){
-        
-        $('li.card[data-listslug="' + slug + '"]').addClass('show').show();
-        $('#totalTask').html($('li.card.show').length);
-
-    } else {
-        
-        $('li.card[data-listslug="' + slug + '"]').removeClass('show').hide();
-        $('#totalTask').html($('li.card.show').length);
-
-    }
-}
-
 
 
 var loadCards = function(strMsg){
@@ -145,32 +128,40 @@ var loadCards = function(strMsg){
             }
         }
 
-            var listName = getListName(item.idList);
-            var listNameSlug;
-            if(typeof listName != 'undefined'){
-              var slug = slugify(listName);
-              listNameSlug = "list-"+slug;
+        var listName = getListName(item.idList);
+        var listNameSlug;
+        if(typeof listName != 'undefined'){
+          var slug = slugify(listName);
+          listNameSlug = "list-"+slug;
 
-              appendStatusList(item.idList,slug,listName);
-            } else {
-              listNameSlug = "";
-            }
+          appendStatusList(item.idList,slug,listName);
+        } else {
+          listNameSlug = "";
+        }
     
-            var daysLate = Math.floor( (Date.now() - itemDueDate.getTime() ) / 86400000);
+        var daysLate = Math.floor( (Date.now() - itemDueDate.getTime() ) / 86400000);
 
-            var status = item.idList;
+        var status = item.idList;
 
-            var itemStr = '<li class="card '+itemClass+' '+ listNameSlug +'" data-listid="'+ item.idList +'">' + 
-                '<h2><a href="http://trello.com/c/'+item.id+'" target="_blank">'+item.name+'</a></h2>'+
-                "<div class='badges'>" +
-                " <span class='badge date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+
-                  " ["+daysLate+"]</span>"+
-                " <span class='badge board board-"+item.idBoard+"'>"+getBoardName(item.idBoard)+"</span>"+
-                " <span class='badge list list-"+item.idList+" "+listNameSlug+"'>"+listName+"</span>"+
-                "</div>"
-                "</li>";
+        var board = {
+          id: item.idBoard,
+          name: getBoardName(item.idBoard)
+        };
+        
+        var itemStr = '<li class="card '+itemClass+' '+ listNameSlug +' show" data-listid="'+ item.idList +'" data-boardid="' + board.id + '">' + 
+            '<h2><a href="http://trello.com/c/'+item.id+'" target="_blank">'+item.name+'</a></h2>'+
+            "<div class='badges'>" +
+            " <span class='badge date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+
+            " ["+daysLate+"]</span>"+
+            " <span class='badge board board-"+board.id+"'>"+board.name+"</span>"+
+            " <span class='badge list list-"+item.idList+" "+listNameSlug+"'>"+listName+"</span>"+
+            "</div>"
+            "</li>";
 
-            $("#list").append(itemStr);
+        $("#list").append(itemStr);
+
+        printBoardListItem(null, board, $('.card .board-'+item.idBoard).length);
+        // sortCardsDOM( $("#list-boards").children(), 'DESC' );
 
         });
 

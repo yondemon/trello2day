@@ -144,25 +144,34 @@ function printCards(data) {
 
 function getBoardName(idBoard) {
 
+    var data = getBoardData(idBoard);
+    if( data != null){
+      return data.name;
+    }
+    return "-";
+}
+
+function getBoardData(idBoard) {
+
     var boardFound = findObjectByAttribute (board, 'id', idBoard);
     if(boardFound !== false ){
-        //console.log("BOARD CACHE:"+idBoard+"="+boardFound.name);
-        return boardFound.name;
+        // console.log("BOARD CACHE:"+idBoard+"="+boardFound.name);
+        return boardFound;
 
     } else {
-        //console.log("BOARD GET: "+idBoard);
+        // console.log("BOARD GET: "+idBoard);
 
         board[idBoard] = "-"; // Lo creamos para solo pedirlo una vez
         $.when(Trello.boards.get(idBoard))
             .then(function(data) {
                 //console.log("BOARD OK: "+idBoard+"="+data.name);
-
                 board[idBoard] = data;
+
                 $(".board-"+idBoard).html(data.name);
 
-              return board[idBoard].name;
+              return board[idBoard];
           });
-        return "-";
+        return null;
     }
 }
 
@@ -243,3 +252,99 @@ function slugify(str) {
 
     return str;
 }
+
+var selectedBoard = function(event){
+    var boardCheck = $(event.target);
+    var boardid = $(event.target).data('id');
+
+    if(boardCheck.prop('checked')){
+        $('li.card[data-boardid=' + boardid + ']').addClass('show').show();
+        $('#totalTask').html($('li.card.show').length);
+
+    } else {
+
+        $('li.card[data-boardid=' + boardid + ']').removeClass('show').hide();
+        $('#totalTask').html($('li.card.show').length);
+
+    }
+}
+var selectedStatus = function(event){
+    var statusCheckbox = $(event.target);
+    var slug = $(event.target).data('slug');
+    
+    if(statusCheckbox.prop('checked')){
+        
+        $('li.card[data-listslug="' + slug + '"]').addClass('show').show();
+        $('#totalTask').html($('li.card.show').length);
+
+    } else {
+        
+        $('li.card[data-listslug="' + slug + '"]').removeClass('show').hide();
+        $('#totalTask').html($('li.card.show').length);
+
+    }
+}
+
+
+jQuery.fn.sortDomElements = (function() {
+    return function(comparator) {
+        return Array.prototype.sort.call(this, comparator).each(function(i) {
+              this.parentNode.appendChild(this);
+        });
+    };
+})();
+
+
+var sortCards = function(cards){
+    cards.sort(function(a,b){
+        var dateA = new Date(a.dateLastActivity);
+        var dateB = new Date(b.dateLastActivity);
+        return (dateA < dateB)? -1 : (dateA > dateB ? 1 : 0);
+    });
+}
+
+var sortTasks = function(){
+    tasks.sort(function(a,b){
+        var dateA = new Date(a.dateLastActivity);
+        var dateB = new Date(b.dateLastActivity);
+        return a.dateLastActivity<b.dateLastActivity ? -1 : a.dateLastActivity>b.dateLastActivity ? 1 : 0;
+    });
+}
+
+
+var sortCardsDOM = function(cardsList, order = 'ASC'){
+    cardsList.sortDomElements(function(a,b){
+        var dataA = parseInt($(a).attr("data-sortkey"));
+        var dataB = parseInt($(b).attr("data-sortkey"));
+        switch(order){
+            case 'DESC':
+                return (dataA > dataB)? -1 : (dataA < dataB ? 1 : 0);
+                break;
+            case 'ASC':
+            default:
+                return (dataA < dataB)? -1 : (dataA > dataB ? 1 : 0);    
+                break;
+        }
+        
+    });
+}
+
+var printBoardListItem = function (list,board,count){
+//    console.log('-PRINT-');
+
+    var countPlaceholder = $('.board-'+board.id+'-count');
+    if( countPlaceholder.length == 0 ){
+      var itemClass = "";
+  //    console.log("ID:"+list.id+"b"+board);
+
+      var itemStr ='<li data-sortkey="'+count+'">'
+        +'<input type="checkbox" data-id="' + board.id + '" checked/>'
+        +'<a href="http://trello.com/b/'+board.id+'/">'
+        +'<span class="board-'+board.id+'">'+board.name+'</span></a>'
+        +'[<span class="board-'+board.id+'-count">'+count+'</span>]</li>';
+        $("#list-boards").append(itemStr);
+    } else {
+      countPlaceholder.html(count);
+    }
+    
+};
