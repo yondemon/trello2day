@@ -313,9 +313,10 @@ var sortTasks = function(){
 
 
 var sortCardsDOM = function(cardsList, order = 'ASC'){
+
     cardsList.sortDomElements(function(a,b){
-        var dataA = parseInt($(a).attr("data-sortkey"));
-        var dataB = parseInt($(b).attr("data-sortkey"));
+        var dataA = parseInt($(a).data("sortkey"));
+        var dataB = parseInt($(b).data("sortkey"));
         switch(order){
             case 'DESC':
                 return (dataA > dataB)? -1 : (dataA < dataB ? 1 : 0);
@@ -330,20 +331,22 @@ var sortCardsDOM = function(cardsList, order = 'ASC'){
 }
 
 var printBoardListItem = function (list,board,count){
-//    console.log('-PRINT-');
 
     var countPlaceholder = $('.board-'+board.id+'-count');
     if( countPlaceholder.length == 0 ){
       var itemClass = "";
-  //    console.log("ID:"+list.id+"b"+board);
+      // console.log("n ID:"+board.id+"b"+board.name+" "+count);
 
-      var itemStr ='<li data-sortkey="'+count+'">'
+      var itemStr = $('<li>'
         +'<input type="checkbox" data-id="' + board.id + '" checked/>'
         +'<a href="http://trello.com/b/'+board.id+'/">'
         +'<span class="board-'+board.id+'">'+board.name+'</span></a>'
-        +'[<span class="board-'+board.id+'-count">'+count+'</span>]</li>';
+        +'[<span class="board-'+board.id+'-count">'+count+'</span>]</li>');
+      itemStr.data('sortkey',count);
         $("#list-boards").append(itemStr);
     } else {
+      // console.log("o ID:"+board.id+"b"+board+" "+count);
+      countPlaceholder.closest('li').data('sortkey',count);
       countPlaceholder.html(count);
     }
     

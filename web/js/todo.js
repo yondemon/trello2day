@@ -161,10 +161,9 @@ var loadCards = function(strMsg){
         $("#list").append(itemStr);
 
         printBoardListItem(null, board, $('.card .board-'+item.idBoard).length);
-        // sortCardsDOM( $("#list-boards").children(), 'DESC' );
+        sortCardsDOM( $("#list-boards").children(), 'DESC' );
 
         });
-
 
         $("#msg #text").append("[<span id='taskCountToday'>T:"+taskCountToday +"  I:"+ taskCountIteration +"  F:"+taskCountFuture+"</span>] ");
 
