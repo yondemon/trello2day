@@ -106,16 +106,33 @@ function loadBoards(){
 
 }
 
+function loadOrganizations(){
+    Trello.get('/members/me/organizations',
+        { fields: "id,name,displayName,activeBillableMemberCount", },
+        function(data) {
+            console.log(data);
+
+            var optOrganization = $("#opt-organization");
+            optOrganization.find('option').remove();
+            optOrganization.append($("<option />").text("-SELECT-"));
+
+            $.each(data, function(id,item){
+                optOrganization.append($("<option />").val(item.id).text(item.displayName));
+                console.log(item);
+            });
+        });
+}
+
+
 function loadTeam(){
-//  console.log("LOAD team");
   $( "#msg" ).text("LOAD TEAM");
-  //console.log(board);
 
   //https://api.trello.com/1/organizations/publicorg?members=all&member_fields=username,fullName&fields=name,desc&key=[application_key]&token=[optional_auth_token]
   if(typeof organization !== 'undefined'){
     Trello.get('/organizations/'+organization+'/members/all',
+        //{ fields: "id,fullName", },
         function(data) {
-          //console.log(data);
+          // console.log(data);
 
           var optmember = $("#opt-member");
           optmember.find('option').remove();
@@ -131,6 +148,7 @@ function loadTeam(){
   } else {
     $( "#msg" ).text("NO TEAM (organization undefined)");
     console.log("NO TEAM (organization undefined)");
+    loadOrganizations();
   }
 }
 

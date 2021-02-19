@@ -18,6 +18,13 @@ $("#reloadCards").click(function() {
   loadCards("RELOAD "+$("#opt-member option:selected").text(),person);
 });
 
+$("#opt-organization").change(function(){
+  //console.log(this.value);
+  //loadCards("LOAD "+$("#opt-member option:selected").text(),this.value);
+  organization = this.value;
+  loadTeam();
+});
+
 $("#opt-member").change(function(){
   //console.log(this.value);
   loadCards("LOAD "+$("#opt-member option:selected").text(),this.value);
