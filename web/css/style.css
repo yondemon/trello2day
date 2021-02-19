@@ -131,7 +131,7 @@ ul#list-backlogs {
 
 #list li h2 {
     font-size: 1.1em;
-    margin: 0.2em 0px;
+    margin: 0.2rem 0 0.5rem;
 }
 
 #list li h2 a {
@@ -139,18 +139,44 @@ ul#list-backlogs {
   color: #4d4d4d;
 }
 
-#list li.futuretask {
+#list li .card-body {
+    background-color: #EEE;
+    color: #333;
+    padding: 0.2rem;
+}
+
+#list li.futuretask,
+#list li .card-body.futuretask {
     background-color: #EEE;
     color: #999;
     opacity: 0.6;
 }
 
-#list li.todaytask {
+#list li.todaytask,
+#list li .card-body.todaytask {
     border: 2px solid;
     /*background-color: #F96;*/
     color: #a94442;
     background-color: #f2dede;
     border-color: #ebccd1;
+}
+
+.card-header {
+    display: block;
+    font-size: 0.8rem;
+}
+.card-header .board {
+    display: inline-block;
+    margin: 0 4px 0 0;
+    padding: 1px 2px;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-weight: bold;
+}
+.card-header .board a {
+    text-decoration: none;
+    color: inherit;
 }
 
 .badges {
@@ -160,7 +186,7 @@ ul#list-backlogs {
 .badge {
     color: #8c8c8c;
     display: inline-block;
-    margin: 0 4px 4px 0;
+    margin: 0 4px 0 0;
     max-width: 100%;
     overflow: hidden;
     padding: 1px 2px;
@@ -169,7 +195,7 @@ ul#list-backlogs {
 
     background: #FFF;
     border-radius: 3px;
-    font-size: 0.8em;
+    font-size: 0.8rem;
 }
 
 

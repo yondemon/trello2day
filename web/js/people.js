@@ -72,12 +72,17 @@ var loadCards = function(strMsg,personId){
           itemClass =  itemClass + "todaytask";
         }
 
-        var itemStr = "<li class='"+itemClass+"'><h2><a href='http://trello.com/c/"+item.id+"' target='_blank'>"+item.name+"</a></h2>"+
-          "<div class='badges'>" +
-          " <span class='badge date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+" </span>"+
-          " <span class='badge board board-"+item.idBoard+"'>"+getBoardName(item.idBoard)+"</span>" +
-          " <span class='badge list list-"+item.idList+"'>"+getListName(item.idList)+"</span>"+
-          "</div>"
+        var itemStr = '<li class="card">'+
+          "<div class='card-header'>"+
+          `  <span class="board board-${item.idBoard}"><a href="http://trello.com/b/${item.idBoard}/">`+getBoardName(item.idBoard)+"</a></span>"+
+          "  <span class='badge list list-"+item.idList+"'>"+getListName(item.idList)+"</span>"+
+          "</div>" +
+          `<div class="card-body ${itemClass}">`+
+          "  <h2><a href='http://trello.com/c/"+item.id+"' target='_blank'>"+item.name+"</a></h2>"+
+          "  <div class='badges'>" +
+          "   <span class='badge date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+" </span>"+
+          "  </div>" +
+          "</div>" +
           "</li>";
 
 

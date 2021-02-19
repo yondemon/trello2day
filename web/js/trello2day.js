@@ -174,6 +174,13 @@ function getBoardData(idBoard) {
     var boardFound = findObjectByAttribute (board, 'id', idBoard);
     if(boardFound !== false ){
         // console.log("BOARD CACHE:"+idBoard+"="+boardFound.name);
+        if(boardFound.prefs.backgroundTopColor){
+            $(`.card[data-boardid=${idBoard}]`).css({
+                'backgroundColor': boardFound.prefs.backgroundTopColor,
+                'color': getCorrectTextColor(boardFound.prefs.backgroundTopColor),
+                // 'borderColor': boardFound.prefs.backgroundBottomColor,
+            });
+        }
         return boardFound;
 
     } else {
@@ -181,11 +188,18 @@ function getBoardData(idBoard) {
 
         board[idBoard] = "-"; // Lo creamos para solo pedirlo una vez
         $.when(Trello.boards.get(idBoard))
-            .then(function(data) {
-                //console.log("BOARD OK: "+idBoard+"="+data.name);
-                board[idBoard] = data;
+            .then(function(boardFound) {
+                //console.log("BOARD OK: "+idBoard+"="+boardFound.name);
+                board[idBoard] = boardFound;
 
-                $(".board-"+idBoard).html(data.name);
+                if(boardFound.prefs.backgroundTopColor){
+                    $(`.card[data-boardid=${idBoard}]`).css({
+                        'backgroundColor': boardFound.prefs.backgroundTopColor,
+                        'color': getCorrectTextColor(boardFound.prefs.backgroundTopColor),
+                        // 'borderColor': boardFound.prefs.backgroundBottomColor,
+                    });
+                }
+                $(".board-"+idBoard).html(boardFound.name);
 
               return board[idBoard];
           });
@@ -369,3 +383,25 @@ var printBoardListItem = function (list,board,count){
     }
     
 };
+
+function getCorrectTextColor(hex){
+    console.log(hex);
+    /*
+    From this W3C document: http://www.webmasterworld.com/r.cgi?f=88&d=9769&url=http://www.w3.org/TR/AERT#color-contrast
+    Color brightness is determined by the following formula: 
+    ((Red value X 299) + (Green value X 587) + (Blue value X 114)) / 1000
+    */   
+    threshold = 130; /* about half of 256. Lower threshold equals more dark text on dark background  */
+    hRed = hexToR(hex);
+    hGreen = hexToG(hex);
+    hBlue = hexToB(hex);
+    
+    function hexToR(h) {return parseInt((cutHex(h)).substring(0,2),16)}
+    function hexToG(h) {return parseInt((cutHex(h)).substring(2,4),16)}
+    function hexToB(h) {return parseInt((cutHex(h)).substring(4,6),16)}
+    function cutHex(h) {return (h.charAt(0)=="#") ? h.substring(1,7):h}
+
+    cBrightness = ((hRed * 299) + (hGreen * 587) + (hBlue * 114)) / 1000;
+    
+    return (cBrightness > threshold)? "#000000" :"#ffffff";
+  }

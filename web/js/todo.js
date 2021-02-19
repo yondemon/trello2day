@@ -148,14 +148,18 @@ var loadCards = function(strMsg){
           name: getBoardName(item.idBoard)
         };
         
-        var itemStr = '<li class="card '+itemClass+' '+ listNameSlug +' show" data-listid="'+ item.idList +'" data-boardid="' + board.id + '">' + 
-            '<h2><a href="http://trello.com/c/'+item.id+'" target="_blank">'+item.name+'</a></h2>'+
-            "<div class='badges'>" +
-            " <span class='badge date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+
-            " ["+daysLate+"]</span>"+
-            " <span class='badge board board-"+board.id+"'>"+board.name+"</span>"+
-            " <span class='badge list list-"+item.idList+" "+listNameSlug+"'>"+listName+"</span>"+
-            "</div>"
+        var itemStr = `<li class="card ${listNameSlug} show" data-listid="${item.idList}" data-boardid="${board.id}">` + 
+            "<div class='card-header'>"+
+            `  <span class="board board-${board.id}"><a href="http://trello.com/b/${board.id}/">${board.name}</a></span>`+
+            `  <span class="badge list list-${item.idList} ${listNameSlug}">${listName}</span>`+
+            "</div>" +
+            `<div class="card-body ${itemClass}">`+
+            `  <h2><a href="http://trello.com/c/${item.id}" target="_blank">${item.name}</a></h2>`+
+            "  <div class='badges'>" +
+            "   <span class='badge date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+
+            "   ["+daysLate+"]</span>"+
+            "  </div>" +
+            "</div>" +
             "</li>";
 
         $("#list").append(itemStr);

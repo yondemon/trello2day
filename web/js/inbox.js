@@ -72,14 +72,18 @@ var printCard = function (card,board){
     }
     //console.log(card);
 
-    var itemStr = '<li class="card '+itemClass + ' show" data-sortkey="' + (itemCreationDate.getTime()/1000) + '" data-boardid="' + board.id + '">' + 
-        "<h2><a href='http://trello.com/c/"+card.id+"' target='_blank'>"+card.name+"</a></h2>" +
-        "<div class='badges'>" +
-        " <span class='badge date creation-date'>"+itemCreationDate.getFullYear()+"-"+(itemCreationDate.getMonth()+1)+"-"+itemCreationDate.getDate()+" </span>"+
-        ((card.due != null)?" <span class='badge date due-date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+" </span>":"")+
+    var itemStr = '<li class="card show" data-sortkey="' + (itemCreationDate.getTime()/1000) + '" data-boardid="' + board.id + '">' + 
+        "<div class='card-header'>"+
         " <span class='badge board board-" + board.id + "'>"+board.name+"</span>"+
+        "</div>" +
+        `<div class="card-body ${itemClass}">` +
+        "  <h2><a href='http://trello.com/c/"+card.id+"' target='_blank'>"+card.name+"</a></h2>" +
+        "  <div class='badges'>" +
+        "   <span class='badge date creation-date'>"+itemCreationDate.getFullYear()+"-"+(itemCreationDate.getMonth()+1)+"-"+itemCreationDate.getDate()+" </span>"+
+        ((card.due != null)?" <span class='badge date due-date'>"+itemDueDate.getFullYear()+"-"+(itemDueDate.getMonth()+1)+"-"+itemDueDate.getDate()+" </span>":"")+
         //" <span class='badge list list-"+card.idList+"'>"+getListName(card.idList)+"</span>"+
-        "</div>"
+        "  </div>" +
+        "</div>" +
         "</li>";
 
 
