@@ -74,7 +74,7 @@ var printCard = function (card,board){
 
     var itemStr = '<li class="card show" data-sortkey="' + (itemCreationDate.getTime()/1000) + '" data-boardid="' + board.id + '">' + 
         "<div class='card-header'>"+
-        " <span class='badge board board-" + board.id + "'>"+board.name+"</span>"+
+        `  <span class="board board-${board.id}"><a href="http://trello.com/b/${board.id}/">${board.name}</a></span>`+
         "</div>" +
         `<div class="card-body ${itemClass}">` +
         "  <h2><a href='http://trello.com/c/"+card.id+"' target='_blank'>"+card.name+"</a></h2>" +

@@ -72,10 +72,26 @@ var loadCards = function(strMsg,personId){
           itemClass =  itemClass + "todaytask";
         }
 
-        var itemStr = '<li class="card">'+
+        var listName = getListName(item.idList);
+        var list = {
+          id: item.idList,
+          name: getListName(item.idList),
+          slug: '-',
+        }
+        if(typeof list.name != 'undefined'){
+          list.slug = slugify(listName);
+          // appendStatusList(item.idList,slug,listName);
+        }
+
+        var board = {
+          id: item.idBoard,
+          name: getBoardName(item.idBoard)
+        };
+
+        var itemStr = `<li class="card list-${list.slug} show" data-listid="${list.id}" data-boardid="${board.id}">` + 
           "<div class='card-header'>"+
-          `  <span class="board board-${item.idBoard}"><a href="http://trello.com/b/${item.idBoard}/">`+getBoardName(item.idBoard)+"</a></span>"+
-          "  <span class='badge list list-"+item.idList+"'>"+getListName(item.idList)+"</span>"+
+          `  <span class="board board-${board.id}"><a href="http://trello.com/b/${board.id}/">${board.name}</a></span>`+
+          `  <span class="badge list list-${list.id}">${list.name}</span>`+
           "</div>" +
           `<div class="card-body ${itemClass}">`+
           "  <h2><a href='http://trello.com/c/"+item.id+"' target='_blank'>"+item.name+"</a></h2>"+
