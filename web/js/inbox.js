@@ -23,42 +23,42 @@ var loadInbox = function(){
     $("#list-boards").html("");
 
     $.when( getMyBoards() )
-    .then(function(data){
-        //console.log("B: "+ data.length +"");
+        .then(function(data){
+            //console.log("B: "+ data.length +"");
 
-        $.each(data,function(id,board){
-            //console.log('B- '+ board.id + ' ' + board.name);
+            $.each(data,function(id,board){
+                //console.log('B- '+ board.id + ' ' + board.name);
 
-            $.when(getNamedListFromBoard(board.id,'INBOX',true))
-            .then(function(list){
+                $.when(getNamedListFromBoard(board.id,'INBOX',true))
+                .then(function(list){
 
-                //console.log('L-- '+ list.id + ' ' + item.name + ' ' + list.name );
+                    //console.log('L-- '+ list.id + ' ' + item.name + ' ' + list.name );
 
-                //$.when(getCardsFromList(list.id))
-                //.then(function(cards){
-                    //console.log('C:  ' + cards.length + ' ['+ board.id + ' ' + board.name + ']['+ list.id + ' ' + list.name + ']');
+                    //$.when(getCardsFromList(list.id))
+                    //.then(function(cards){
+                        //console.log('C:  ' + cards.length + ' ['+ board.id + ' ' + board.name + ']['+ list.id + ' ' + list.name + ']');
 
-                    printBoardListItem(list, board, list.cards.length);
-                    sortCardsDOM( $("#list-boards").children(), 'DESC' );
+                        printBoardListItem(list, board, list.cards.length);
+                        sortCardsDOM( $("#list-boards").children(), 'DESC' );
 
-                    $.each(list.cards,function(id,card){
+                        $.each(list.cards,function(id,card){
 
-                        //console.log('-PRINT CARD- ' + card.id );
-                        printCard(card,board);
-                    });
+                            //console.log('-PRINT CARD- ' + card.id );
+                            printCard(card,board);
+                        });
 
-                    //console.log("SORT Cards "+ list.id);
-                    sortCardsDOM( $("#list").children() );
+                        //console.log("SORT Cards "+ list.id);
+                        sortCardsDOM( $("#list").children() );
 
-                //});
+                    //});
+                });
             });
-        });
 
-    });
+        });
 
 };
 
-var printCard = function (card,board){
+var printCard = function (card, board){
 //    console.log('-PRINT-');
 
     var itemClass = "";
@@ -88,6 +88,8 @@ var printCard = function (card,board){
 
 
     $("#list").append(itemStr);
+
+    colorCardByBoard( board );
 
     var taskCount = $("#list li").length;
     $("#totalTask").html(taskCount);

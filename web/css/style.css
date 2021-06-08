@@ -152,13 +152,20 @@ ul#list-backlogs {
     opacity: 0.6;
 }
 
+#list li.latetask,
+#list li .card-body.latetask {
+    border: 2px solid;
+    color: #a94442;
+    background-color: #ffc5c5;
+    border-color: #ff9999;
+}
+
 #list li.todaytask,
 #list li .card-body.todaytask {
     border: 2px solid;
-    /*background-color: #F96;*/
-    color: #a94442;
-    background-color: #f2dede;
-    border-color: #ebccd1;
+    color: #a97c42;
+    background-color: #e4d57f;
+    border-color: #e4d57f;
 }
 
 .card-header {
@@ -221,9 +228,15 @@ ul#list-backlogs {
     background-color: #dffdcf
 }
 
-.todaytask .due-date {
+.latetask .date,
+.latetask .due-date {
     background-color: #ebccd1
 }
+.todaytask .date,
+.todaytask .due-date {
+    background-color: #ebe8cc
+}
+
 
 #scrumBoard {
     float: right;

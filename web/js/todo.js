@@ -83,16 +83,28 @@ var loadCards = function(strMsg){
       var today = new Date();
       var futureDay = new Date(new Date().setDate(new Date().getDate()+noFutureDays))
 
+      console.log(today.getTime());
+      var todayStarts = today.getTime();
+      var todayEnds = todayStarts + 86400000;
+      var futureStarts = futureDay.getTime();
+
       $.each(todoTasks,function(id,item){
         var itemDueDate = new Date(item.due);
         var itemClass = "";
-
-        if(itemDueDate.getTime() > futureDay.getTime()){
+        var itemDueDateTime = itemDueDate.getTime();
+        
+        if(itemDueDateTime > futureStarts ){
             itemClass =  itemClass + "futuretask";
             taskCountFuture ++;
-        } else if(itemDueDate.getTime() === today.getTime() || itemDueDate.getTime() < today.getTime()){
+        } else if( itemDueDateTime < todayStarts ){
+            itemClass =  itemClass + "latetask";
+            taskCountToday ++; // It has to be done TODAY!
+            taskCountIteration ++;
+        } else if( itemDueDateTime < todayEnds ){
+            console.log('today', item);
             itemClass =  itemClass + "todaytask";
             taskCountToday ++;
+            taskCountIteration ++;
         } else {
             taskCountIteration ++;
         }

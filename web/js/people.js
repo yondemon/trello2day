@@ -30,11 +30,7 @@ $("#opt-member").change(function(){
   loadCards("LOAD "+$("#opt-member option:selected").text(),this.value);
 });
 
-
-
-
 // ---- FUNCTIONS ----
-
 var loadCards = function(strMsg,personId){
 //  Trello.get('/members/'+personId+'/cards/open?fields=name,due,idBoard',
   // Trello.get('/members/'+personId+'/cards/open',

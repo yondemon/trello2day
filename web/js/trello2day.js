@@ -169,18 +169,22 @@ function getBoardName(idBoard) {
     return "-";
 }
 
+function colorCardByBoard( board ){
+    if( board.prefs.backgroundTopColor ){
+        $(`.card[data-boardid=${board.id}]`).css({
+            'backgroundColor': board.prefs.backgroundTopColor,
+            'color': getCorrectTextColor(board.prefs.backgroundTopColor),
+        });
+    }    
+}
+
 function getBoardData(idBoard) {
 
     var boardFound = findObjectByAttribute (board, 'id', idBoard);
     if(boardFound !== false ){
         // console.log("BOARD CACHE:"+idBoard+"="+boardFound.name);
-        if(boardFound.prefs.backgroundTopColor){
-            $(`.card[data-boardid=${idBoard}]`).css({
-                'backgroundColor': boardFound.prefs.backgroundTopColor,
-                'color': getCorrectTextColor(boardFound.prefs.backgroundTopColor),
-                // 'borderColor': boardFound.prefs.backgroundBottomColor,
-            });
-        }
+        colorCardByBoard( boardFound );
+
         return boardFound;
 
     } else {
@@ -189,16 +193,11 @@ function getBoardData(idBoard) {
         board[idBoard] = "-"; // Lo creamos para solo pedirlo una vez
         $.when(Trello.boards.get(idBoard))
             .then(function(boardFound) {
-                //console.log("BOARD OK: "+idBoard+"="+boardFound.name);
+                // console.log("BOARD OK: "+idBoard+"="+boardFound.name);
                 board[idBoard] = boardFound;
 
-                if(boardFound.prefs.backgroundTopColor){
-                    $(`.card[data-boardid=${idBoard}]`).css({
-                        'backgroundColor': boardFound.prefs.backgroundTopColor,
-                        'color': getCorrectTextColor(boardFound.prefs.backgroundTopColor),
-                        // 'borderColor': boardFound.prefs.backgroundBottomColor,
-                    });
-                }
+                colorCardByBoard( boardFound );
+
                 $(".board-"+idBoard).html(boardFound.name);
 
               return board[idBoard];
@@ -212,9 +211,10 @@ function getMyBoards(){
     var dfd = jQuery.Deferred();
     Trello.get('/members/me/boards?fields=all&list=true&list_fields=all&filter=open',
         function(data) {
+            // console.log(data);
+            board = data;
 
             dfd.resolve(data);
-
         });
 
     return dfd;
@@ -385,7 +385,7 @@ var printBoardListItem = function (list,board,count){
 };
 
 function getCorrectTextColor(hex){
-    console.log(hex);
+    // console.log(hex);
     /*
     From this W3C document: http://www.webmasterworld.com/r.cgi?f=88&d=9769&url=http://www.w3.org/TR/AERT#color-contrast
     Color brightness is determined by the following formula: 
