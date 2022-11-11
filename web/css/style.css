@@ -81,7 +81,7 @@ nav li.active {
 }
 
 .content > div p {
-    // position: absolute;
+    /* position: absolute; */
     top: 0;
     right: 0;
     padding: 3px 10px;
@@ -127,6 +127,11 @@ ul#list-backlogs {
     padding: 3px;
     background-color: #FFF;
     overflow: hidden;
+}
+
+#list-boards li.alert,
+#list-backlogs li.alert {
+    background-color: #ffc5c5;
 }
 
 #list li h2 {

@@ -19,7 +19,7 @@ var scrum;
 
 var listStatus = {};
 
-$.getScript("https://trello.com/1/client.js?key="+trellokey, function(){
+$.getScript("https://api.trello.com/1/client.js?key="+trellokey, function(){
     console.log("Trello Client Script loaded.");
 
     authorizeTrello();

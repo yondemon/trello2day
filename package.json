@@ -1,0 +1,23 @@
+{
+  "name": "trello2day",
+  "version": "1.5.0",
+  "description": "Web interface for managing yout tasks on Trello",
+  "main": "index.js",
+  "scripts": {
+    "start": "serve .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yondemon/trello2day.git"
+  },
+  "author": "Pablo Rod (pablo.rod@amorodio.es)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yondemon/trello2day/issues"
+  },
+  "homepage": "https://github.com/yondemon/trello2day#readme",
+  "devDependencies": {
+    "serve": "^14.0.1"
+  }
+}

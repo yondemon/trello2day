@@ -369,16 +369,18 @@ var printBoardListItem = function (list,board,count){
       var itemClass = "";
       // console.log("n ID:"+board.id+"b"+board.name+" "+count);
 
-      var itemStr = $('<li>'
-        +'<input type="checkbox" data-id="' + board.id + '" checked/>'
-        +'<a href="http://trello.com/b/'+board.id+'/">'
-        +'<span class="board-'+board.id+'">'+board.name+'</span></a>'
-        +'[<span class="board-'+board.id+'-count">'+count+'</span>]</li>');
+      var itemStr = $(`<li class="${count > 20? "alert": ""}">`
+        +`<input type="checkbox" data-id="${board.id}" checked/>`
+        +`<a href="http://trello.com/b/${board.id}/">`
+        +`<span class="board-${board.id}">${board.name}</span></a>`
+        +`[<span class="board-${board.id}-count">${count}</span>]</li>`);
+
       itemStr.data('sortkey',count);
         $("#list-boards").append(itemStr);
     } else {
-      // console.log("o ID:"+board.id+"b"+board+" "+count);
+      console.log("o ID:"+board.id+"b"+board+" "+count);
       countPlaceholder.closest('li').data('sortkey',count);
+      if(count > 5) countPlaceholder.closest('li').addClass('alert');
       countPlaceholder.html(count);
     }
     

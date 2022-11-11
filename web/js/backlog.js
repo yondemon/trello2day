@@ -1,48 +1,48 @@
 //var tasks = [];
 
-$.getScript("https://trello.com/1/client.js?key="+trellokey, function(){
+$.getScript("https://trello.com/1/client.js?key=" + trellokey, function () {
+  console.log("Trello Client Script loaded.");
 
-    console.log("Trello Client Script loaded.");
+  authorizeTrello();
 
-    authorizeTrello();
-
-    loadBacklogs();
+  loadBacklogs();
 });
 
-$( "#reloadCards" ).click(function() {
-    loadBacklogs();
+$("#reloadCards").click(function () {
+  loadBacklogs();
 });
 
-var loadBacklogs = function(){
-    $("#list").html("");
-    $("#list-backlogs").html("");
+var loadBacklogs = function () {
+  $("#list").html("");
+  $("#list-backlogs").html("");
 
-    $.when( getMyBoards() )
-    .then(function(data){
-        //console.log("B: "+ data.length +"");
+  $.when(getMyBoards()).then(function (data) {
+    //console.log("B: "+ data.length +"");
 
-        $.each(data,function(id,board){
-            //console.log('B- '+ board.id + ' ' + board.name);
-           
-            $.when(getNamedListFromBoard(board.id,'Backlog',true))
-            .then(function(list){
-                //console.log('L-- '+ list.id + ' ' + list.name );
-                //console.log(list);
-                printBacklogList(list,board);
-            });
-        
-        });
+    $.each(data, function (id, board) {
+      //console.log('B- '+ board.id + ' ' + board.name);
+
+      $.when(getNamedListFromBoard(board.id, "Backlog", true)).then(function (
+        list
+      ) {
+        //console.log('L-- '+ list.id + ' ' + list.name );
+        //console.log(list);
+        printBacklogList(list, board);
+      });
     });
+  });
 };
 
-var printBacklogList = function (list,board){
-    var count = list.cards.length;
+var printBacklogList = function (list, board) {
+  var count = list.cards.length;
 
-    var itemClass = "";
-//    console.log("ID:"+list.id+"b"+board);
+  var itemClass = "";
+  //    console.log("ID:"+list.id+"b"+board);
 
-    var itemStr ='<li><a href="http://trello.com/b/'+board.id+'/">'+board.name+'</a> [<span class="board-'+board.id+'-count">'+count+'</span>]</li>';
+  var itemStr =
+    `<li data-count="${count}" class="${count > 30 ? "alert" : ""}">` +
+    `<a href="http://trello.com/b/${board.id}/">${board.name}</a>` +
+    ` [<span class="board-${board.id}-count">${count}</span>]</li>`;
 
-    $("#list-backlogs").append(itemStr);
+  $("#list-backlogs").append(itemStr);
 };
-
