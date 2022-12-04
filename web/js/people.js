@@ -1,12 +1,10 @@
-
+let organization;
 //---- - ----
 
 $.getScript("https://trello.com/1/client.js?key="+trellokey, function(){
   console.log("Trello Client Script loaded.");
 
   authorizeTrello();
-
-  loadBoards();
 
   loadTeam();
 });
@@ -19,10 +17,12 @@ $("#reloadCards").click(function() {
 });
 
 $("#opt-organization").change(function(){
-  //console.log(this.value);
-  //loadCards("LOAD "+$("#opt-member option:selected").text(),this.value);
   organization = this.value;
+  // loadCards("LOAD "+$("#opt-member option:selected").text(),this.value);
+  
   loadTeam();
+
+  loadBoards({organization});
 });
 
 $("#opt-member").change(function(){
@@ -41,8 +41,9 @@ var loadCards = function(strMsg,personId){
 
       var todoTasks = [];
       $.each(data.cards,function(id,item){
-//        console.log(item);
-        if(item.due !== null && item.dueComplete == false ){
+        // console.log(`CARD: ${id} - ${item.idBoard}`);
+        // console.log(item);
+        if(item.due !== null && item.dueComplete == false && organizationBoards.includes(item.idBoard) ){
           todoTasks.push(item);
         }
       });

@@ -1,4 +1,4 @@
-version 0.1 
+version 0.3 
 
 This little js app get the most urgent cards from alll the boards you are in in Trello and show them on just one list, ordered by due date, so you can focus on the most urgent tasks.
 

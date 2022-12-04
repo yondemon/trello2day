@@ -1,5 +1,4 @@
-var trellokey = 'YOUR API KEY'; // https://trello.com/app-key
+const trellokey = 'YOUR API KEY'; // https://trello.com/app-key
 
-var noFutureDays = 14;
-// var organization = '';
-var scrumPoints = 1;
+const noFutureDays = 14;
+const scrumPoints = 1;

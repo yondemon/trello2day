@@ -1,7 +1,7 @@
-var taskCountToday = 0;
-var taskCountFuture = 0;
+let taskCountToday = 0;
+let taskCountFuture = 0;
 
-var scrumInit = {
+let scrumInit = {
     today : {
       done : 0,
       total: 0
@@ -15,9 +15,9 @@ var scrumInit = {
       total: 0
     }
   };
-var scrum;
+let scrum;
 
-var listStatus = {};
+let listStatus = {};
 
 $.getScript("https://api.trello.com/1/client.js?key="+trellokey, function(){
     console.log("Trello Client Script loaded.");
@@ -41,7 +41,7 @@ $( "#reloadCards" ).click(function() {
 
 function appendStatusList(idList,listNameSlug,listName){
 
-  var itemStr ='<li class="listStatus-'+idList+'"><input type="checkbox" data-slug="' + listNameSlug + '" checked/><span class="list-name">'+listName+'</span></li>';
+  const itemStr ='<li class="listStatus-'+idList+'"><input type="checkbox" data-slug="' + listNameSlug + '" checked/><span class="list-name">'+listName+'</span></li>';
   $('#list-status').append(itemStr);
 
 }
@@ -73,11 +73,11 @@ var loadCards = function(strMsg){
         }
       });
 
-      todoTasks.sort(function(a,b){
-        var dateA = new Date(a.due);
-        var dateB = new Date(b.due);
-        return a.due<b.due ? -1 : a.due>b.due ? 1 : 0;
-        });
+      todoTasks.sort( (a,b) => {
+        const dateA = new Date(a.due);
+        const dateB = new Date(b.due);
+        return a.due < b.due ? -1 : a.due > b.due ? 1 : 0;
+      });
 
       $( "#msg #text" ).append(": "+todoTasks.length+" tasks");
       var today = new Date();
@@ -101,7 +101,7 @@ var loadCards = function(strMsg){
             taskCountToday ++; // It has to be done TODAY!
             taskCountIteration ++;
         } else if( itemDueDateTime < todayEnds ){
-            console.log('today', item);
+            // console.log('today', item);
             itemClass =  itemClass + "todaytask";
             taskCountToday ++;
             taskCountIteration ++;
@@ -207,11 +207,10 @@ var loadCards = function(strMsg){
           
         }
         */
-      //console.log(data);
         },
         function(msg){
-            console.log("ERROR getting");
-            $("#msg #text").html("Error " + msg);
+          console.log("ERROR getting");
+          $("#msg #text").html("Error " + msg);
         }
     );
   };
