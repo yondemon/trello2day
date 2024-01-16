@@ -1,47 +1,44 @@
 <html>
-<head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <link rel="stylesheet" type="text/css" href="css/style.css">
-  <link rel="icon" type="image/x-icon" href="favicon.ico" />
-</head>
-<body>
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  </head>
+  <body>
+    <div id="header">
+      <h1 class="board-header-btn-text" dir="auto">Trello2day</h1>
 
-<div id="header">
-  <h1 class="board-header-btn-text" dir="auto">Trello2day</h1>
+      <div class="header-buttons">
+        <button class="header-btn" id="reloadCards">Reload</button>
+      </div>
+    </div>
 
-  <div class="header-buttons">
-    <button class="header-btn" id="reloadCards">Reload</button>
-  </div>
-</div>
-
-<nav>
-    <ul>
+    <nav>
+      <ul>
         <li><a href="index.html">Today</a></li>
         <li><a href="people.html">People</a></li>
         <li><a href="inbox.html">Inbox</a></li>
+        <li><a href="waiting.html">Waiting</a></li>
         <li class="active"><a href="backlog.html">Backlog</a></li>
-    </ul>
-</nav>
+      </ul>
+    </nav>
 
-<div class="content">
+    <div class="content">
+      <div id="msg">
+        <div class="info">
+          <p>Every board with a BACKLOG list.</p>
+        </div>
+      </div>
 
-  <div id="msg">
-  <div class="info">
-      <p>Every board with a BACKLOG list.</p>
-  </div>
-  </div>
+      <ul id="list"></ul>
 
-  <ul id="list">
-  </ul>
+      <ul id="list-backlogs"></ul>
+    </div>
 
-  <ul id="list-backlogs">
-  </ul>
-</div>
-
-<script src="js/jquery-2.1.4.js"></script>
-<script src="js/config.js"></script>
-<script src="js/trello2day.js"></script>
-<script src="js/backlog.js"></script>
-</body>
+    <script src="js/jquery-2.1.4.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/trello2day.js"></script>
+    <script src="js/backlog.js"></script>
+  </body>
 </html>

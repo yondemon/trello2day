@@ -99,7 +99,7 @@ function loadBoards(filter = {}) {
     Trello.get(
       `/organizations/${organization}/boards?filter=open`,
       (orgBoards) => {
-        organizationBoards = orgBoards.map(item => item.id);
+        organizationBoards = orgBoards.map((item) => item.id);
       }
     );
   }
@@ -249,7 +249,7 @@ function getNamedListFromBoard(boardId, name, cards = false) {
   const dfd = jQuery.Deferred();
 
   Trello.get(
-    `/boards/${boardId}/lists${(cards ? "?cards=open" : "")}`,
+    `/boards/${boardId}/lists${cards ? "?cards=open" : ""}`,
     function (data) {
       $.each(data, function (id, item) {
         if (item.name == name) {
@@ -287,14 +287,10 @@ const selectedBoard = (event) => {
   const boardId = $(event.target).data("id");
 
   if (boardCheck.prop("checked")) {
-    $(`li.card[data-boardid="${boardId}"]`)
-      .addClass("show")
-      .show();
+    $(`li.card[data-boardid="${boardId}"]`).addClass("show").show();
     $("#totalTask").html($("li.card.show").length);
   } else {
-    $(`li.card[data-boardid="${boardId}"]`)
-      .removeClass("show")
-      .hide();
+    $(`li.card[data-boardid="${boardId}"]`).removeClass("show").hide();
     $("#totalTask").html($("li.card.show").length);
   }
 };
@@ -304,14 +300,10 @@ const selectedStatus = (event) => {
   const slug = $(event.target).data("slug");
 
   if (statusCheckbox.prop("checked")) {
-    $(`li.card[data-listslug="${slug}"]`)
-      .addClass("show")
-      .show();
+    $(`li.card[data-listslug="${slug}"]`).addClass("show").show();
     $("#totalTask").html($("li.card.show").length);
   } else {
-    $(`li.card[data-listslug="${slug}"]`)
-      .removeClass("show")
-      .hide();
+    $(`li.card[data-listslug="${slug}"]`).removeClass("show").hide();
     $("#totalTask").html($("li.card.show").length);
   }
 };
@@ -360,11 +352,11 @@ const sortCardsDOM = (cardsList, order = "ASC") => {
   });
 };
 
-const printBoardListItem = function (list, board, count) {
+const printBoardListItem = (list, board, count) => {
   const countPlaceholder = $(".board-" + board.id + "-count");
   if (countPlaceholder.length == 0) {
     let itemClass = "";
-    // console.log("n ID:"+board.id+"b"+board.name+" "+count);
+    // console.log("n ID:" + board.id + "b" + board.name + " " + count);
 
     const itemStr = $(
       `<li class="${count > 20 ? "alert" : ""}">` +
@@ -373,6 +365,7 @@ const printBoardListItem = function (list, board, count) {
         `<span class="board-${board.id}">${board.name}</span></a>` +
         `[<span class="board-${board.id}-count">${count}</span>]</li>`
     );
+    // console.log(itemStr);
 
     itemStr.data("sortkey", count);
     $("#list-boards").append(itemStr);

@@ -16,10 +16,10 @@
 
     <nav>
       <ul>
-        <li class="active"><a href="index.html">Today</a></li>
+        <li><a href="index.html">Today</a></li>
         <li><a href="people.html">People</a></li>
         <li><a href="inbox.html">Inbox</a></li>
-        <li><a href="waiting.html">Waiting</a></li>
+        <li class="active"><a href="waiting.html">Waiting</a></li>
         <li><a href="backlog.html">Backlog</a></li>
       </ul>
     </nav>
@@ -27,13 +27,11 @@
     <div class="content">
       <div id="msg">
         <div class="info">
-          <p>Tasks assigned to ME and with due date, ordered by due date</p>
+          <p>Tasks on Waiting column</p>
         </div>
       </div>
 
-      <div id="list"></div>
-
-      <ul id="list-status"></ul>
+      <ul id="list"></ul>
 
       <ul id="list-boards"></ul>
     </div>
@@ -41,6 +39,6 @@
     <script src="js/jquery-2.1.4.js"></script>
     <script src="js/config.js"></script>
     <script src="js/trello2day.js"></script>
-    <script src="js/todo.js"></script>
+    <script src="js/waiting.js"></script>
   </body>
 </html>
