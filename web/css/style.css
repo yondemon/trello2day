@@ -118,6 +118,11 @@ ul#list-backlogs {
     list-style-type: none;
 }
 
+ul#list-status input[type="checkbox"],
+ul#list-boards input[type="checkbox"],
+ul#list-backlogs input[type="checkbox"]{
+    accent-color: currentcolor;
+}
 
 #list li {
     border: 1px solid #999;
@@ -127,10 +132,6 @@ ul#list-backlogs {
     padding: 3px;
     background-color: #FFF;
     overflow: hidden;
-}
-
-#list li input[type="checkbox"]{
-    accent-color: currentcolor;
 }
 
 #list-boards li.alert,
