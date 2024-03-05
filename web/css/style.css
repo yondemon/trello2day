@@ -129,6 +129,10 @@ ul#list-backlogs {
     overflow: hidden;
 }
 
+#list li input[type="checkbox"]{
+    accent-color: currentcolor;
+}
+
 #list-boards li.alert,
 #list-backlogs li.alert {
     background-color: #ffc5c5;
