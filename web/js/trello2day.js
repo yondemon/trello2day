@@ -406,3 +406,25 @@ function getCorrectTextColor(hex) {
 
   return cBrightness > threshold ? "#000000" : "#ffffff";
 }
+
+let setStatus = (status, msg = "") => {
+  const statusElement = document.getElementById("status");
+  switch (status) {
+    case "OK":
+      statusElement.innerHTML = `OK ${msg}`;
+      statusElement.className = "status status-ok";
+      break;
+    case "KO":
+      statusElement.innerHTML = `KO ${msg}`;
+      statusElement.className = "status status-ko";
+      break;
+    case "WARN":
+      statusElement.innerHTML = `WARNING ${msg}`;
+      statusElement.className = "status status-warn";
+      break;
+    default:
+      statusElement.innerHTML = `ERROR ${status}`;
+      statusElement.className = "status";
+      break;
+  }
+};
