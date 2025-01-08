@@ -221,10 +221,20 @@ ul#list-backlogs input[type="checkbox"] {
   background-color: #e4d57f;
   border-color: #e4d57f;
 }
-
 .card-header {
-  display: block;
+  display: flex;
   font-size: 0.8rem;
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 1rem;
+  padding: 0.2rem;
+}
+
+.card-header .id {
+  display: inline-block;
+  margin-left:auto;
+  padding: 1px 2px;
+  text-decoration: none;
 }
 .card-header .board {
   display: inline-block;

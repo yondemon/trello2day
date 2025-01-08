@@ -172,6 +172,7 @@ var loadCards = function (strMsg) {
           "<div class='card-header'>" +
           `  <span class="board board-${board.id}"><a href="http://trello.com/b/${board.id}/">${board.name}</a></span>` +
           `  <span class="badge list list-${item.idList} ${listNameSlug}">${listName}</span>` +
+          `  <span class="id">${item.idShort}</span>` +
           "</div>" +
           `<div class="card-body ${itemClass}">` +
           `  <h2><a href="http://trello.com/c/${item.id}" target="_blank">${item.name}</a></h2>` +
