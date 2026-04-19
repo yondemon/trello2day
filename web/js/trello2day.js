@@ -3,7 +3,7 @@ let list = {};
 
 let organizationBoards = [];
 
-let authorizeTrello = function () {
+function authorizeTrello() {
   Trello.authorize({
     type: "redirect",
     name: "Trello2Day",
@@ -15,7 +15,7 @@ let authorizeTrello = function () {
     authenticationSuccess,
     authenticationFailure,
   });
-};
+}
 
 let authenticationSuccess = () => {
   console.log("Successful authentication");
@@ -55,14 +55,11 @@ function updateCardsList(idList, slug, name) {
 
 function getListName(idList) {
   if (typeof list[idList] != "undefined") {
-    //console.log("LIST CACHE:"+idList + "=" + list[idList].name);
     return list[idList].name;
   } else {
-    //console.log("LIST GET: "+idList);
 
     list[idList] = "-"; // Lo creamos para solo pedirlo una vez
     $.when(Trello.lists.get(idList)).then(function (data) {
-      //console.log("LIST OK: "+idList+"="+data.name);
 
       list[idList] = data;
       const slug = slugify(data.name);
@@ -82,20 +79,15 @@ function getListName(idList) {
 }
 
 function loadBoards(filter = {}) {
-  console.log("LOAD boards");
-
   const loadBoardData = (data) => {
-    //console.log(data);
     board = data;
 
     $.each(data, function (index, value) {
       $(".board-" + this.id).html(this.name);
-      // console.log("(ME) board: " + this.id + " " + this.name);
     });
   };
 
   if (filter.organization) {
-    // console.log(`org ${filter.organization}`);
     Trello.get(
       `/organizations/${organization}/boards?filter=open`,
       (orgBoards) => {
@@ -111,8 +103,6 @@ function loadOrganizations() {
     "/members/me/organizations",
     { fields: "id,name,displayName,activeBillableMemberCount" },
     function (data) {
-      // console.log('Organization DATA');
-      // console.log(data);
 
       const optOrganization = $("#opt-organization");
       optOrganization.find("option").remove();
@@ -122,7 +112,6 @@ function loadOrganizations() {
         optOrganization.append(
           $("<option />").val(item.id).text(item.displayName)
         );
-        // console.log(item);
       });
     }
   );
@@ -137,7 +126,6 @@ function loadTeam() {
       `/organizations/${organization}/members/all`,
       //{ fields: "id,fullName", },
       function (data) {
-        // console.log(data);
 
         const optmember = $("#opt-member");
         optmember.find("option").remove();
@@ -146,13 +134,11 @@ function loadTeam() {
 
         $.each(data, function (id, item) {
           optmember.append($("<option />").val(item.id).text(item.fullName));
-          //console.log(item);
         });
       }
     );
   } else {
     $("#msg").text("NO TEAM (organization undefined)");
-    console.log("NO TEAM (organization undefined)");
     loadOrganizations();
   }
 }
@@ -162,7 +148,6 @@ function printCards(data) {
   data.each(function (item) {
     $("$list").append("" + item);
   });
-  //console.log(data);
 }
 
 function getBoardName(idBoard) {
@@ -185,16 +170,13 @@ function colorCardByBoard(board) {
 function getBoardData(idBoard) {
   const boardFound = findObjectByAttribute(board, "id", idBoard);
   if (boardFound !== false) {
-    // console.log("BOARD CACHE:"+idBoard+"="+boardFound.name);
     colorCardByBoard(boardFound);
 
     return boardFound;
   } else {
-    // console.log("BOARD GET: "+idBoard);
 
     board[idBoard] = "-"; // Lo creamos para solo pedirlo una vez
     $.when(Trello.boards.get(idBoard)).then(function (boardFound) {
-      // console.log("BOARD OK: "+idBoard+"="+boardFound.name);
       board[idBoard] = boardFound;
 
       colorCardByBoard(boardFound);
@@ -212,10 +194,12 @@ function getMyBoards() {
   Trello.get(
     "/members/me/boards?fields=all&list=true&list_fields=all&filter=open",
     function (data) {
-      // console.log(data);
       board = data;
-
       dfd.resolve(data);
+    },
+    function (error) {
+      console.error("Error fetching boards:", error);
+      dfd.reject(error);
     }
   );
 
@@ -225,22 +209,22 @@ function getMyBoards() {
 function getCardsFromList(listId) {
   const dfd = jQuery.Deferred();
 
-  // console.log('---GET LIST '+listId);
-  Trello.get(`/lists/${listId}/cards`, function (data) {
-    // console.log('---GOT LIST '+listId);
+  Trello.get(
+    `/lists/${listId}/cards`,
+    function (data) {
+      let cards = [];
+      $.each(data, function (id, item) {
+        cards.push(item);
+      });
 
-    let cards = [];
-    $.each(data, function (id, item) {
-      // console.log('--- '+item.name);
-      cards.push(item);
-    });
-
-    // console.log('---SORT LIST '+listId + '['+ data.length+' / '+ cards.length+']');
-    sortCards(cards);
-
-    // console.log('---RESOLVE LIST '+listId);
-    dfd.resolve(cards);
-  });
+      sortCards(cards);
+      dfd.resolve(cards);
+    },
+    function (error) {
+      console.error("Error fetching cards from list:", error);
+      dfd.reject(error);
+    }
+  );
 
   return dfd;
 }
@@ -251,12 +235,20 @@ function getNamedListFromBoard(boardId, name, cards = false) {
   Trello.get(
     `/boards/${boardId}/lists${cards ? "?cards=open" : ""}`,
     function (data) {
+      let found = false;
       $.each(data, function (id, item) {
-        if (item.name == name) {
-          //console.log('-- '+ item.id + ' ' +item.name);
+        if (item.name === name) {
           dfd.resolve(item);
+          found = true;
         }
       });
+      if (!found) {
+        dfd.reject("List '" + name + "' not found on board " + boardId);
+      }
+    },
+    function (error) {
+      console.error("Error fetching lists from board:", error);
+      dfd.reject(error);
     }
   );
 
@@ -356,29 +348,25 @@ const printBoardListItem = (list, board, count) => {
   const countPlaceholder = $(".board-" + board.id + "-count");
   if (countPlaceholder.length == 0) {
     let itemClass = "";
-    // console.log("n ID:" + board.id + "b" + board.name + " " + count);
 
     const itemStr = $(
-      `<li class="${count > 20 ? "alert" : ""}">` +
+      `<li class="${count > ALERT_THRESHOLD ? "alert" : ""}">` +
         `<input type="checkbox" data-id="${board.id}" checked/>` +
         `<a href="http://trello.com/b/${board.id}/">` +
         `<span class="board-${board.id}">${board.name}</span></a>` +
         `[<span class="board-${board.id}-count">${count}</span>]</li>`
     );
-    // console.log(itemStr);
 
     itemStr.data("sortkey", count);
     $("#list-boards").append(itemStr);
   } else {
-    // console.log("o ID:" + board.id + "b" + board + " " + count);
     countPlaceholder.closest("li").data("sortkey", count);
-    if (count > 5) countPlaceholder.closest("li").addClass("alert");
+    if (count > ALERT_THRESHOLD) countPlaceholder.closest("li").addClass("alert");
     countPlaceholder.html(count);
   }
 };
 
 function getCorrectTextColor(hex) {
-  // console.log(hex);
   /*
     From this W3C document: http://www.webmasterworld.com/r.cgi?f=88&d=9769&url=http://www.w3.org/TR/AERT#color-contrast
     Color brightness is determined by the following formula: 
@@ -407,24 +395,160 @@ function getCorrectTextColor(hex) {
   return cBrightness > threshold ? "#000000" : "#ffffff";
 }
 
+function formatDate(date) {
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+function renderCard(card, board, options = {}) {
+  const { list = null, itemClass = "", sortKey = null, showCreationDate = true } = options;
+
+  const itemCreationDate = new Date(1000 * parseInt(card.id.substring(0, 8), 16));
+  const itemDueDate = card.due ? new Date(card.due) : null;
+  const effectiveSortKey = sortKey !== null ? sortKey : itemCreationDate.getTime() / 1000;
+
+  // Build card element
+  const $card = $("<li>")
+    .addClass("card show")
+    .attr("data-sortkey", effectiveSortKey)
+    .attr("data-boardid", board.id);
+
+  // Add list slug class if applicable
+  if (list) {
+    $card.addClass(`list-${list.slug}`);
+    $card.attr("data-listid", list.id);
+  }
+
+  // Build header
+  const $header = $("<div>").addClass("card-header");
+  const $boardLink = $("<span>")
+    .addClass(`board board-${board.id}`)
+    .append(
+      $("<a>")
+        .attr("href", `http://trello.com/b/${board.id}/`)
+        .text(board.name)
+    );
+  $header.append($boardLink);
+
+  // Add list badge if applicable
+  if (list) {
+    $header.append(
+      $("<span>")
+        .addClass("badge list")
+        .addClass(`list-${list.id}`)
+        .text(list.name)
+    );
+  }
+
+  // Build body
+  const $body = $("<div>")
+    .addClass("card-body")
+    .addClass(itemClass);
+
+  // Add card title
+  $body.append(
+    $("<h2>").append(
+      $("<a>")
+        .attr("href", `http://trello.com/c/${card.id}`)
+        .attr("target", "_blank")
+        .text(card.name)
+    )
+  );
+
+  // Build badges section
+  const $badges = $("<div>").addClass("badges");
+
+  if (showCreationDate) {
+    $badges.append(
+      $("<span>")
+        .addClass("badge date creation-date")
+        .text(formatDate(itemCreationDate))
+    );
+  }
+
+  if (itemDueDate) {
+    $badges.append(
+      $("<span>")
+        .addClass("badge date due-date")
+        .text(formatDate(itemDueDate))
+    );
+  }
+
+  $body.append($badges);
+
+  // Assemble card
+  $card.append($header);
+  $card.append($body);
+
+  // Append to DOM and update
+  $("#list").append($card);
+  if (board.prefs) colorCardByBoard(board);
+
+  $("#totalTask").html($("#list li").length);
+}
+
+function loadCardsFromNamedList(colName, renderFn, onComplete) {
+  $("#list").html("");
+  $("#list-boards").html("");
+
+  $.when(getMyBoards())
+    .then(function (data) {
+      let pendingLists = data.length;
+      let completedLists = 0;
+
+      if (pendingLists === 0) {
+        if (onComplete) onComplete(true);
+        return;
+      }
+
+      $.each(data, function (id, board) {
+        $.when(getNamedListFromBoard(board.id, colName, true))
+          .then((list) => {
+            printBoardListItem(list, board, list.cards.length);
+            sortCardsDOM($("#list-boards").children(), "DESC");
+            $.each(list.cards, (id, card) => renderFn(card, board));
+            sortCardsDOM($("#list").children());
+            completedLists++;
+            if (completedLists === pendingLists && onComplete) {
+              onComplete(true);
+            }
+          })
+          .fail((error) => {
+            // List not found on this board - skip and continue
+            console.warn(`${colName} list not found on board ${board.id}`);
+            completedLists++;
+            if (completedLists === pendingLists && onComplete) {
+              onComplete(true);
+            }
+          });
+      });
+    })
+    .fail(function (error) {
+      console.error("Error loading boards:", error);
+      setStatus("KO", "Error loading boards: " + error);
+      $("#msg").html("Error loading boards");
+      if (onComplete) onComplete(false);
+    });
+}
+
 let setStatus = (status, msg = "") => {
   const statusElement = document.getElementById("status");
   switch (status) {
     case "OK":
-      statusElement.innerHTML = `OK ${msg}`;
+      statusElement.innerHTML = `OK: ${msg}`;
       statusElement.className = "status status-ok";
       break;
     case "KO":
-      statusElement.innerHTML = `KO ${msg}`;
+      statusElement.innerHTML = `KO: ${msg}`;
       statusElement.className = "status status-ko";
       break;
     case "WARN":
-      statusElement.innerHTML = `WARNING ${msg}`;
+      statusElement.innerHTML = `WARNING: ${msg}`;
       statusElement.className = "status status-warn";
       break;
     default:
-      statusElement.innerHTML = `ERROR ${status}`;
-      statusElement.className = "status";
+      statusElement.innerHTML = `ERROR: ${status}`;
+      statusElement.className = "status status-error";
       break;
   }
 };

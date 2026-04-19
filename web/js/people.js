@@ -1,5 +1,4 @@
 let organization;
-//---- - ----
 
 $.getScript("https://trello.com/1/client.js?key=" + trellokey, function () {
   console.log("Trello Client Script loaded.");
@@ -11,29 +10,20 @@ $.getScript("https://trello.com/1/client.js?key=" + trellokey, function () {
 
 $("#reloadCards").click(function () {
   var person = $("#opt-member").val();
-  //console.log(person);
-
   loadCards("RELOAD " + $("#opt-member option:selected").text(), person);
 });
 
 $("#opt-organization").change(function () {
   organization = this.value;
-  // loadCards("LOAD "+$("#opt-member option:selected").text(),this.value);
-
   loadTeam();
-
   loadBoards({ organization });
 });
 
 $("#opt-member").change(function () {
-  //console.log(this.value);
   loadCards("LOAD " + $("#opt-member option:selected").text(), this.value);
 });
 
-// ---- FUNCTIONS ----
-var loadCards = function (strMsg, personId) {
-  //  Trello.get('/members/'+personId+'/cards/open?fields=name,due,idBoard',
-  // Trello.get('/members/'+personId+'/cards/open',
+function loadCards(strMsg, personId) {
   Trello.get(
     "/members/" + personId + "?cards=open",
     function (data) {
@@ -42,8 +32,6 @@ var loadCards = function (strMsg, personId) {
 
       var todoTasks = [];
       $.each(data.cards, function (id, item) {
-        // console.log(`CARD: ${id} - ${item.idBoard}`);
-        // console.log(item);
         if (
           item.due !== null &&
           item.dueComplete == false &&
@@ -82,44 +70,16 @@ var loadCards = function (strMsg, personId) {
         var listName = getListName(item.idList);
         var list = {
           id: item.idList,
-          name: getListName(item.idList),
-          slug: "-",
+          name: listName,
+          slug: typeof listName !== "undefined" ? slugify(listName) : "-",
         };
-        if (typeof list.name != "undefined") {
-          list.slug = slugify(listName);
-          // appendStatusList(item.idList,slug,listName);
-        }
 
-        var board = {
+        var boardObj = {
           id: item.idBoard,
           name: getBoardName(item.idBoard),
         };
 
-        var itemStr =
-          `<li class="card list-${list.slug} show" data-listid="${list.id}" data-boardid="${board.id}">` +
-          "<div class='card-header'>" +
-          `  <span class="board board-${board.id}"><a href="http://trello.com/b/${board.id}/">${board.name}</a></span>` +
-          `  <span class="badge list list-${list.id}">${list.name}</span>` +
-          "</div>" +
-          `<div class="card-body ${itemClass}">` +
-          "  <h2><a href='http://trello.com/c/" +
-          item.id +
-          "' target='_blank'>" +
-          item.name +
-          "</a></h2>" +
-          "  <div class='badges'>" +
-          "   <span class='badge date'>" +
-          itemDueDate.getFullYear() +
-          "-" +
-          (itemDueDate.getMonth() + 1) +
-          "-" +
-          itemDueDate.getDate() +
-          " </span>" +
-          "  </div>" +
-          "</div>" +
-          "</li>";
-
-        $("#list").append(itemStr);
+        renderCard(item, boardObj, { list, itemClass, showCreationDate: false });
       });
 
       $("#msg").append(": LOADED " + $("#list").children().length + " tasks");
@@ -130,4 +90,4 @@ var loadCards = function (strMsg, personId) {
       setStatus("KO", "Error " + msg);
     }
   );
-};
+}
