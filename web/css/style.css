@@ -96,11 +96,17 @@ body {
 #status.status-ok {
   background-color: #4fb100;
 }
-#status.status-warning {
-  background-color: #a94442;
+#status.status-warn {
+  color: #000000;
+  background-color: #b6d87b;
 }
 #status.status-ko {
+  color: #FFFFFF;
   background-color: #b10000;
+}
+#status.status-error {
+  color: #000000;
+  background-color: #ffdd00;
 }
 
 nav ul {
