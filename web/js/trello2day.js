@@ -407,6 +407,11 @@ function getCorrectTextColor(hex) {
   return cBrightness > threshold ? "#000000" : "#ffffff";
 }
 
+function formatDate(date) {
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
 function renderCard(card, board, options = {}) {
   const { list = null, itemClass = "", sortKey = null, showCreationDate = true } = options;
 
@@ -414,17 +419,14 @@ function renderCard(card, board, options = {}) {
   const itemDueDate = card.due ? new Date(card.due) : null;
   const effectiveSortKey = sortKey !== null ? sortKey : itemCreationDate.getTime() / 1000;
 
-  const pad = (n) => String(n).padStart(2, "0");
-  const fmtDate = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-
   const listSlugClass = list ? ` list-${list.slug}` : "";
   const listIdAttr = list ? ` data-listid="${list.id}"` : "";
   const listBadge = list ? `<span class="badge list list-${list.id}">${list.name}</span>` : "";
   const creationBadge = showCreationDate
-    ? `<span class="badge date creation-date">${fmtDate(itemCreationDate)}</span>`
+    ? `<span class="badge date creation-date">${formatDate(itemCreationDate)}</span>`
     : "";
   const dueBadge = itemDueDate
-    ? `<span class="badge date due-date">${fmtDate(itemDueDate)}</span>`
+    ? `<span class="badge date due-date">${formatDate(itemDueDate)}</span>`
     : "";
 
   const itemStr =

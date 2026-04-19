@@ -178,11 +178,7 @@ var loadCards = function (strMsg) {
           `  <h2><a href="http://trello.com/c/${item.id}" target="_blank">${item.name}</a></h2>` +
           "  <div class='badges'>" +
           "   <span class='badge date'>" +
-          itemDueDate.getFullYear() +
-          "-" +
-          (itemDueDate.getMonth() + 1) +
-          "-" +
-          itemDueDate.getDate() +
+          formatDate(itemDueDate) +
           "   [" +
           daysLate +
           "]</span>" +
