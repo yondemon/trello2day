@@ -18,10 +18,8 @@ let authorizeTrello = function () {
 };
 
 let authenticationSuccess = () => {
-  console.log("Successful authentication");
 };
 let authenticationFailure = () => {
-  console.log("Failed authentication");
 };
 
 function findObjectByAttribute(items, attribute, value) {
@@ -55,14 +53,11 @@ function updateCardsList(idList, slug, name) {
 
 function getListName(idList) {
   if (typeof list[idList] != "undefined") {
-    //console.log("LIST CACHE:"+idList + "=" + list[idList].name);
     return list[idList].name;
   } else {
-    //console.log("LIST GET: "+idList);
 
     list[idList] = "-"; // Lo creamos para solo pedirlo una vez
     $.when(Trello.lists.get(idList)).then(function (data) {
-      //console.log("LIST OK: "+idList+"="+data.name);
 
       list[idList] = data;
       const slug = slugify(data.name);
@@ -91,7 +86,6 @@ function loadBoards(filter = {}) {
   };
 
   if (filter.organization) {
-    // console.log(`org ${filter.organization}`);
     Trello.get(
       `/organizations/${organization}/boards?filter=open`,
       (orgBoards) => {
@@ -107,8 +101,6 @@ function loadOrganizations() {
     "/members/me/organizations",
     { fields: "id,name,displayName,activeBillableMemberCount" },
     function (data) {
-      // console.log('Organization DATA');
-      // console.log(data);
 
       const optOrganization = $("#opt-organization");
       optOrganization.find("option").remove();
@@ -118,7 +110,6 @@ function loadOrganizations() {
         optOrganization.append(
           $("<option />").val(item.id).text(item.displayName)
         );
-        // console.log(item);
       });
     }
   );
@@ -133,7 +124,6 @@ function loadTeam() {
       `/organizations/${organization}/members/all`,
       //{ fields: "id,fullName", },
       function (data) {
-        // console.log(data);
 
         const optmember = $("#opt-member");
         optmember.find("option").remove();
@@ -142,13 +132,11 @@ function loadTeam() {
 
         $.each(data, function (id, item) {
           optmember.append($("<option />").val(item.id).text(item.fullName));
-          //console.log(item);
         });
       }
     );
   } else {
     $("#msg").text("NO TEAM (organization undefined)");
-    console.log("NO TEAM (organization undefined)");
     loadOrganizations();
   }
 }
@@ -158,7 +146,6 @@ function printCards(data) {
   data.each(function (item) {
     $("$list").append("" + item);
   });
-  //console.log(data);
 }
 
 function getBoardName(idBoard) {
@@ -181,16 +168,13 @@ function colorCardByBoard(board) {
 function getBoardData(idBoard) {
   const boardFound = findObjectByAttribute(board, "id", idBoard);
   if (boardFound !== false) {
-    // console.log("BOARD CACHE:"+idBoard+"="+boardFound.name);
     colorCardByBoard(boardFound);
 
     return boardFound;
   } else {
-    // console.log("BOARD GET: "+idBoard);
 
     board[idBoard] = "-"; // Lo creamos para solo pedirlo una vez
     $.when(Trello.boards.get(idBoard)).then(function (boardFound) {
-      // console.log("BOARD OK: "+idBoard+"="+boardFound.name);
       board[idBoard] = boardFound;
 
       colorCardByBoard(boardFound);
@@ -362,7 +346,6 @@ const printBoardListItem = (list, board, count) => {
   const countPlaceholder = $(".board-" + board.id + "-count");
   if (countPlaceholder.length == 0) {
     let itemClass = "";
-    // console.log("n ID:" + board.id + "b" + board.name + " " + count);
 
     const itemStr = $(
       `<li class="${count > 20 ? "alert" : ""}">` +
@@ -371,12 +354,10 @@ const printBoardListItem = (list, board, count) => {
         `<span class="board-${board.id}">${board.name}</span></a>` +
         `[<span class="board-${board.id}-count">${count}</span>]</li>`
     );
-    // console.log(itemStr);
 
     itemStr.data("sortkey", count);
     $("#list-boards").append(itemStr);
   } else {
-    // console.log("o ID:" + board.id + "b" + board + " " + count);
     countPlaceholder.closest("li").data("sortkey", count);
     if (count > 5) countPlaceholder.closest("li").addClass("alert");
     countPlaceholder.html(count);
@@ -384,7 +365,6 @@ const printBoardListItem = (list, board, count) => {
 };
 
 function getCorrectTextColor(hex) {
-  // console.log(hex);
   /*
     From this W3C document: http://www.webmasterworld.com/r.cgi?f=88&d=9769&url=http://www.w3.org/TR/AERT#color-contrast
     Color brightness is determined by the following formula: 
