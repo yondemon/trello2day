@@ -50,14 +50,147 @@ function appendStatusList(idList, listNameSlug, listName) {
   $("#list-status").append(itemStr);
 }
 
+/**
+ * Create time boundaries for classifying tasks (today, future, late).
+ */
+function createTimeWindows() {
+  const today = new Date();
+  const futureDay = new Date(
+    new Date().setDate(new Date().getDate() + noFutureDays)
+  );
+  return {
+    todayStarts: today.getTime(),
+    todayEnds: today.getTime() + 86400000,
+    futureStarts: futureDay.getTime(),
+  };
+}
+
+/**
+ * Classify a task based on due date and time windows.
+ * Returns {itemClass, countsToAdd} where countsToAdd tracks which counters to increment.
+ */
+function classifyTask(itemDueDateTime, timeWindows) {
+  const { todayStarts, todayEnds, futureStarts } = timeWindows;
+  let itemClass = "";
+  const countsToAdd = { today: 0, future: 0, iteration: 0 };
+
+  if (itemDueDateTime > futureStarts) {
+    itemClass = "futuretask";
+    countsToAdd.future = 1;
+  } else if (itemDueDateTime < todayStarts) {
+    itemClass = "latetask";
+    countsToAdd.today = 1;
+    countsToAdd.iteration = 1;
+  } else if (itemDueDateTime < todayEnds) {
+    itemClass = "todaytask";
+    countsToAdd.today = 1;
+    countsToAdd.iteration = 1;
+  } else {
+    countsToAdd.iteration = 1;
+  }
+
+  return { itemClass, countsToAdd };
+}
+
+/**
+ * Parse scrum points from card name.
+ * Looks for pattern like "(3/5)" or "(done/total)".
+ * Returns {done, total} or null if not found.
+ */
+function parseScrumPoints(cardName) {
+  const scrumRegex = /\(((([\d]+(.[\d])?)\/)?([\d]+(.[\d])?))\)/;
+  const matches = cardName.match(scrumRegex);
+
+  if (!matches) return null;
+
+  return {
+    done: matches[3] !== null ? +matches[3] : null,
+    total: matches[5] !== null ? +matches[5] : null,
+  };
+}
+
+/**
+ * Accumulate task counts and scrum points.
+ * Updates global counters and scrum object.
+ */
+function accumulateCounts(countsToAdd, scrumData, timeWindows, itemDueDateTime) {
+  taskCountToday += countsToAdd.today;
+  taskCountFuture += countsToAdd.future;
+  taskCountIteration += countsToAdd.iteration;
+
+  if (scrumPoints && scrumData) {
+    if (scrumData.done !== null) {
+      scrum.total.done += scrumData.done;
+    }
+    if (scrumData.total !== null) {
+      scrum.total.total += scrumData.total;
+    }
+
+    // Include in iteration scrum if task is within iteration window
+    if (itemDueDateTime < timeWindows.futureStarts) {
+      if (scrumData.done !== null) {
+        scrum.iteration.done += scrumData.done;
+      }
+      if (scrumData.total !== null) {
+        scrum.iteration.total += scrumData.total;
+      }
+    }
+  }
+}
+
+/**
+ * Update DOM with task counts and scrum display.
+ */
+function updateStatusDisplay() {
+  $("#msg #text").append(
+    "[<span id='taskCountToday'>T:" +
+      taskCountToday +
+      "  I:" +
+      taskCountIteration +
+      "  F:" +
+      taskCountFuture +
+      "</span>] "
+  );
+
+  $("#scrumBoard").remove("#totalTask");
+  $("#scrumBoard").append(
+    '<span id="totalTask">' +
+      taskCountToday +
+      (taskCountIteration > 0
+        ? ' <span class="iterationTasks">[+' +
+          taskCountIteration +
+          "]</span>"
+        : "") +
+      "</span>"
+  );
+
+  if (scrumPoints) {
+    $("#scrumBoard").append(
+      '<span id="scrumIteration" class="">' +
+        "Scrum Iteration: (" +
+        scrum.iteration.done +
+        "/" +
+        scrum.iteration.total +
+        ")</span> "
+    );
+    $("#scrumBoard").append(
+      '<span id="scrumTotal" class="">' +
+        "Scrum: (" +
+        scrum.total.done +
+        "/" +
+        scrum.total.total +
+        ")</span> "
+    );
+  }
+}
+
 var loadCards = function (strMsg) {
-  // RESET
+  // Reset counters
   taskCountToday = 0;
   taskCountFuture = 0;
   taskCountIteration = 0;
-  scrum = JSON.parse(JSON.stringify(scrumInit)); // http://heyjavascript.com/4-creative-ways-to-clone-objects/
+  scrum = JSON.parse(JSON.stringify(scrumInit));
 
-  //  Trello.get('/members/me/cards/open?fields=name,due,list&list=true&list_fields=all',
   Trello.get(
     "/members/me/cards/open?fields=all&list=true&list_fields=all",
     function (data) {
@@ -65,108 +198,61 @@ var loadCards = function (strMsg) {
       $("#msg #text").html(strMsg + " OK");
       $("#list").html("");
 
+      // Filter and sort tasks
       var todoTasks = [];
       $.each(data, function (id, item) {
         if (item.due !== null && item.dueComplete == false) {
-          //console.log({item},item.dueComplete);
-
           todoTasks.push(item);
-        } else {
-          //console.log('NO!',{item});
         }
       });
 
-      todoTasks.sort((a, b) => {
-        const dateA = new Date(a.due);
-        const dateB = new Date(b.due);
-        return a.due < b.due ? -1 : a.due > b.due ? 1 : 0;
-      });
-
-      $("#msg #text").append(": " + todoTasks.length + " tasks");
-      var today = new Date();
-      var futureDay = new Date(
-        new Date().setDate(new Date().getDate() + noFutureDays)
+      todoTasks.sort((a, b) =>
+        a.due < b.due ? -1 : a.due > b.due ? 1 : 0
       );
 
-      console.log(today.getTime());
-      var todayStarts = today.getTime();
-      var todayEnds = todayStarts + 86400000;
-      var futureStarts = futureDay.getTime();
+      $("#msg #text").append(": " + todoTasks.length + " tasks");
 
+      // Create time windows for classification
+      const timeWindows = createTimeWindows();
+
+      // Process each task
       $.each(todoTasks, function (id, item) {
-        var itemDueDate = new Date(item.due);
-        var itemClass = "";
-        var itemDueDateTime = itemDueDate.getTime();
+        const itemDueDate = new Date(item.due);
+        const itemDueDateTime = itemDueDate.getTime();
 
-        if (itemDueDateTime > futureStarts) {
-          itemClass = itemClass + "futuretask";
-          taskCountFuture++;
-        } else if (itemDueDateTime < todayStarts) {
-          itemClass = itemClass + "latetask";
-          taskCountToday++; // It has to be done TODAY!
-          taskCountIteration++;
-        } else if (itemDueDateTime < todayEnds) {
-          // console.log('today', item);
-          itemClass = itemClass + "todaytask";
-          taskCountToday++;
-          taskCountIteration++;
-        } else {
-          taskCountIteration++;
-        }
-
-        if (scrumPoints) {
-          // var scrumRegex = /\((([\d]+)\/([\d]+))\)/; // /(\([\d]+\/[\d]+\))/;
-          //var scrumRegex = /\(((([\d])+\/)?([\d]+))\)/;
-          var scrumRegex = /\(((([\d]+(.[\d])?)\/)?([\d]+(.[\d])?))\)/;
-          var matches = item.name.match(scrumRegex);
-
-          if (matches != null) {
-            //console.log(matches);
-            //console.log(matches[1]+" "+item.id+" "+item.name);
-            //console.log("Done: "+matches[3]+" Total: "+matches[5]);
-
-            if (matches[3] != null) {
-              scrum.total.done = scrum.total.done + +matches[3];
-            }
-            if (matches[5] != null) {
-              scrum.total.total = +scrum.total.total + +matches[5];
-            }
-            //console.log("tD"+scrum.total.done+"tT:"+scrum.total.total);
-
-            if (itemDueDate.getTime() < futureDay.getTime()) {
-              if (matches[3] != null) {
-                scrum.iteration.done = scrum.iteration.done + +matches[3];
-              }
-              if (matches[5] != null) {
-                scrum.iteration.total = scrum.iteration.total + +matches[5];
-              }
-            }
-            //console.log("iD"+scrum.iteration.done+"iT:"+scrum.iteration.total);
-          }
-        }
-
-        var listName = getListName(item.idList);
-        var listNameSlug;
-        if (typeof listName != "undefined") {
-          var slug = slugify(listName);
-          listNameSlug = "list-" + slug;
-
-          appendStatusList(item.idList, slug, listName);
-        } else {
-          listNameSlug = "";
-        }
-
-        var daysLate = Math.floor(
-          (Date.now() - itemDueDate.getTime()) / 86400000
+        // Classify task and get count increments
+        const { itemClass, countsToAdd } = classifyTask(
+          itemDueDateTime,
+          timeWindows
         );
 
-        var status = item.idList;
+        // Parse scrum points if enabled
+        const scrumData = scrumPoints ? parseScrumPoints(item.name) : null;
+        accumulateCounts(countsToAdd, scrumData, timeWindows, itemDueDateTime);
+
+        // Add list to status filter if not already added
+        var listName = getListName(item.idList);
+        if (typeof listName !== "undefined" && !listStatus[item.idList]) {
+          const slug = slugify(listName);
+          appendStatusList(item.idList, slug, listName);
+          listStatus[item.idList] = true;
+        }
+
+        var listNameSlug =
+          typeof listName !== "undefined"
+            ? "list-" + slugify(listName)
+            : "";
+
+        var daysLate = Math.floor(
+          (Date.now() - itemDueDateTime) / 86400000
+        );
 
         var board = {
           id: item.idBoard,
           name: getBoardName(item.idBoard),
         };
 
+        // Render card
         var itemStr =
           `<li class="card ${listNameSlug} show" data-listid="${item.idList}" data-boardid="${board.id}">` +
           "<div class='card-header'>" +
@@ -188,69 +274,12 @@ var loadCards = function (strMsg) {
 
         $("#list").append(itemStr);
 
-        printBoardListItem(
-          null,
-          board,
-          $(".card .board-" + item.idBoard).length
-        );
+        printBoardListItem(null, board, $(".card .board-" + item.idBoard).length);
         sortCardsDOM($("#list-boards").children(), "DESC");
       });
 
-      $("#msg #text").append(
-        "[<span id='taskCountToday'>T:" +
-          taskCountToday +
-          "  I:" +
-          taskCountIteration +
-          "  F:" +
-          taskCountFuture +
-          "</span>] "
-      );
-
-      $("#scrumBoard").remove("#totalTask");
-      $("#scrumBoard").append(
-        '<span id="totalTask">' +
-          taskCountToday +
-          (taskCountIteration > 0
-            ? ' <span class="iterationTasks">[+' +
-              taskCountIteration +
-              "]</span>"
-            : "") +
-          "</span>"
-      );
-
-      if (scrumPoints) {
-        //$("#msg").append("<span>Scrum Today: ("+scrumToday['done']+"/"+scrumToday['total']+")</span> ");
-        $("#scrumBoard").append(
-          '<span id="scrumIteration" class="">' +
-            "Scrum Iteration: (" +
-            scrum.iteration.done +
-            "/" +
-            scrum.iteration.total +
-            ")</span> "
-        );
-        $("#scrumBoard").append(
-          '<span id="scrumTotal" class="">' +
-            "Scrum: (" +
-            scrum.total.done +
-            "/" +
-            scrum.total.total +
-            ")</span> "
-        );
-      }
-
-      /*
-        console.log(list);
-        console.log(typeof list);
-        for( itemid in list){
-          console.log(list[itemid]);
-          item = list[itemid];
-
-          if($('#list-status li.list-'+slugify(item.name)+'').length < 0 ){
-            $("#list-status").append($('<li class="list-'+slugify(item.name)+'">'+item.name+'</li>'));
-          }
-          
-        }
-        */
+      // Update UI
+      updateStatusDisplay();
     },
     function (msg) {
       console.log("ERROR getting");
