@@ -19,6 +19,9 @@ let scrum;
 
 let listStatus = {};
 
+// Pre-compiled regex for parsing scrum points: (3/5) or (3.5/5.5)
+const SCRUM_POINTS_REGEX = /\(((([\d]+(.[\d])?)\/)?([\d]+(.[\d])?))\)/;
+
 $.getScript("https://api.trello.com/1/client.js?key=" + trellokey, function () {
   console.log("Trello Client Script loaded.");
 
@@ -98,8 +101,7 @@ function classifyTask(itemDueDateTime, timeWindows) {
  * Returns {done, total} or null if not found.
  */
 function parseScrumPoints(cardName) {
-  const scrumRegex = /\(((([\d]+(.[\d])?)\/)?([\d]+(.[\d])?))\)/;
-  const matches = cardName.match(scrumRegex);
+  const matches = cardName.match(SCRUM_POINTS_REGEX);
 
   if (!matches) return null;
 
