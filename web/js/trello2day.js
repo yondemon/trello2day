@@ -345,13 +345,12 @@ const sortCardsDOM = (cardsList, order = "ASC") => {
 };
 
 const printBoardListItem = (list, board, count) => {
-  const alertThreshold = 10;
   const countPlaceholder = $(".board-" + board.id + "-count");
   if (countPlaceholder.length == 0) {
     let itemClass = "";
 
     const itemStr = $(
-      `<li class="${count > alertThreshold ? "alert" : ""}">` +
+      `<li class="${count > ALERT_THRESHOLD ? "alert" : ""}">` +
         `<input type="checkbox" data-id="${board.id}" checked/>` +
         `<a href="http://trello.com/b/${board.id}/">` +
         `<span class="board-${board.id}">${board.name}</span></a>` +
@@ -362,7 +361,7 @@ const printBoardListItem = (list, board, count) => {
     $("#list-boards").append(itemStr);
   } else {
     countPlaceholder.closest("li").data("sortkey", count);
-    if (count > alertThreshold) countPlaceholder.closest("li").addClass("alert");
+    if (count > ALERT_THRESHOLD) countPlaceholder.closest("li").addClass("alert");
     countPlaceholder.html(count);
   }
 };

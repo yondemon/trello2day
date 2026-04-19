@@ -57,7 +57,7 @@ function printBacklogList(list, board) {
   var count = list.cards.length;
 
   var itemStr =
-    `<li data-count="${count}" class="${count > 30 ? "alert" : ""}">` +
+    `<li data-count="${count}" class="${count > BACKLOG_ALERT_THRESHOLD ? "alert" : ""}">` +
     `<a href="http://trello.com/b/${board.id}/">${board.name}</a>` +
     ` [<span class="board-${board.id}-count">${count}</span>]</li>`;
 

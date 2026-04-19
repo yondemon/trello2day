@@ -6,3 +6,7 @@ const scrumPoints = 1;
 const COL_INBOX = "INBOX";
 const COL_WAITING = "Waiting";
 const COL_BACKLOG = "Backlog";
+
+// Alert thresholds for card counts
+const ALERT_THRESHOLD = 10;          // Show alert in board list when count > 10
+const BACKLOG_ALERT_THRESHOLD = 30;  // Show alert in backlog when count > 30
