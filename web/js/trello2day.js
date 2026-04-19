@@ -82,15 +82,11 @@ function getListName(idList) {
 }
 
 function loadBoards(filter = {}) {
-  console.log("LOAD boards");
-
   const loadBoardData = (data) => {
-    //console.log(data);
     board = data;
 
     $.each(data, function (index, value) {
       $(".board-" + this.id).html(this.name);
-      // console.log("(ME) board: " + this.id + " " + this.name);
     });
   };
 

@@ -1,5 +1,4 @@
 let organization;
-//---- - ----
 
 $.getScript("https://trello.com/1/client.js?key=" + trellokey, function () {
   console.log("Trello Client Script loaded.");
@@ -11,29 +10,20 @@ $.getScript("https://trello.com/1/client.js?key=" + trellokey, function () {
 
 $("#reloadCards").click(function () {
   var person = $("#opt-member").val();
-  //console.log(person);
-
   loadCards("RELOAD " + $("#opt-member option:selected").text(), person);
 });
 
 $("#opt-organization").change(function () {
   organization = this.value;
-  // loadCards("LOAD "+$("#opt-member option:selected").text(),this.value);
-
   loadTeam();
-
   loadBoards({ organization });
 });
 
 $("#opt-member").change(function () {
-  //console.log(this.value);
   loadCards("LOAD " + $("#opt-member option:selected").text(), this.value);
 });
 
-// ---- FUNCTIONS ----
 var loadCards = function (strMsg, personId) {
-  //  Trello.get('/members/'+personId+'/cards/open?fields=name,due,idBoard',
-  // Trello.get('/members/'+personId+'/cards/open',
   Trello.get(
     "/members/" + personId + "?cards=open",
     function (data) {
@@ -42,8 +32,6 @@ var loadCards = function (strMsg, personId) {
 
       var todoTasks = [];
       $.each(data.cards, function (id, item) {
-        // console.log(`CARD: ${id} - ${item.idBoard}`);
-        // console.log(item);
         if (
           item.due !== null &&
           item.dueComplete == false &&

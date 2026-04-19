@@ -17,16 +17,10 @@ var loadBacklogs = function () {
   $("#list-backlogs").html("");
 
   $.when(getMyBoards()).then(function (data) {
-    //console.log("B: "+ data.length +"");
-
     $.each(data, function (id, board) {
-      //console.log('B- '+ board.id + ' ' + board.name);
-
       $.when(getNamedListFromBoard(board.id, COL_BACKLOG, true)).then(function (
         list
       ) {
-        //console.log('L-- '+ list.id + ' ' + list.name );
-        //console.log(list);
         printBacklogList(list, board);
       });
     });
@@ -35,9 +29,6 @@ var loadBacklogs = function () {
 
 var printBacklogList = function (list, board) {
   var count = list.cards.length;
-
-  var itemClass = "";
-  //    console.log("ID:"+list.id+"b"+board);
 
   var itemStr =
     `<li data-count="${count}" class="${count > 30 ? "alert" : ""}">` +
