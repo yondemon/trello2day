@@ -23,7 +23,7 @@ $("#opt-member").change(function () {
   loadCards("LOAD " + $("#opt-member option:selected").text(), this.value);
 });
 
-var loadCards = function (strMsg, personId) {
+function loadCards(strMsg, personId) {
   Trello.get(
     "/members/" + personId + "?cards=open",
     function (data) {
@@ -90,4 +90,4 @@ var loadCards = function (strMsg, personId) {
       setStatus("KO", "Error " + msg);
     }
   );
-};
+}

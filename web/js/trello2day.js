@@ -3,7 +3,7 @@ let list = {};
 
 let organizationBoards = [];
 
-let authorizeTrello = function () {
+function authorizeTrello() {
   Trello.authorize({
     type: "redirect",
     name: "Trello2Day",
@@ -15,11 +15,13 @@ let authorizeTrello = function () {
     authenticationSuccess,
     authenticationFailure,
   });
-};
+}
 
 let authenticationSuccess = () => {
+  console.log("Successful authentication");
 };
 let authenticationFailure = () => {
+  console.log("Failed authentication");
 };
 
 function findObjectByAttribute(items, attribute, value) {

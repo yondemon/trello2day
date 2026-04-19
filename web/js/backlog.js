@@ -13,7 +13,7 @@ $("#reloadCards").click(function () {
   loadBacklogs();
 });
 
-var loadBacklogs = function () {
+function loadBacklogs() {
   setStatus("WARN", "Loading backlogs...");
   $("#list").html("");
   $("#list-backlogs").html("");
@@ -51,9 +51,9 @@ var loadBacklogs = function () {
       console.error("Error loading boards:", error);
       setStatus("KO", "Error loading backlogs: " + error);
     });
-};
+}
 
-var printBacklogList = function (list, board) {
+function printBacklogList(list, board) {
   var count = list.cards.length;
 
   var itemStr =
@@ -62,4 +62,4 @@ var printBacklogList = function (list, board) {
     ` [<span class="board-${board.id}-count">${count}</span>]</li>`;
 
   $("#list-backlogs").append(itemStr);
-};
+}

@@ -186,7 +186,7 @@ function updateStatusDisplay() {
   }
 }
 
-var loadCards = function (strMsg) {
+function loadCards(strMsg) {
   // Reset counters
   taskCountToday = 0;
   taskCountFuture = 0;
@@ -289,4 +289,4 @@ var loadCards = function (strMsg) {
       setStatus("KO", "Error " + msg);
     }
   );
-};
+}
