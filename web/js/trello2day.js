@@ -208,10 +208,12 @@ function getMyBoards() {
   Trello.get(
     "/members/me/boards?fields=all&list=true&list_fields=all&filter=open",
     function (data) {
-      // console.log(data);
       board = data;
-
       dfd.resolve(data);
+    },
+    function (error) {
+      console.error("Error fetching boards:", error);
+      dfd.reject(error);
     }
   );
 
@@ -221,22 +223,22 @@ function getMyBoards() {
 function getCardsFromList(listId) {
   const dfd = jQuery.Deferred();
 
-  // console.log('---GET LIST '+listId);
-  Trello.get(`/lists/${listId}/cards`, function (data) {
-    // console.log('---GOT LIST '+listId);
+  Trello.get(
+    `/lists/${listId}/cards`,
+    function (data) {
+      let cards = [];
+      $.each(data, function (id, item) {
+        cards.push(item);
+      });
 
-    let cards = [];
-    $.each(data, function (id, item) {
-      // console.log('--- '+item.name);
-      cards.push(item);
-    });
-
-    // console.log('---SORT LIST '+listId + '['+ data.length+' / '+ cards.length+']');
-    sortCards(cards);
-
-    // console.log('---RESOLVE LIST '+listId);
-    dfd.resolve(cards);
-  });
+      sortCards(cards);
+      dfd.resolve(cards);
+    },
+    function (error) {
+      console.error("Error fetching cards from list:", error);
+      dfd.reject(error);
+    }
+  );
 
   return dfd;
 }
@@ -247,12 +249,20 @@ function getNamedListFromBoard(boardId, name, cards = false) {
   Trello.get(
     `/boards/${boardId}/lists${cards ? "?cards=open" : ""}`,
     function (data) {
+      let found = false;
       $.each(data, function (id, item) {
-        if (item.name == name) {
-          //console.log('-- '+ item.id + ' ' +item.name);
+        if (item.name === name) {
           dfd.resolve(item);
+          found = true;
         }
       });
+      if (!found) {
+        dfd.reject("List '" + name + "' not found on board " + boardId);
+      }
+    },
+    function (error) {
+      console.error("Error fetching lists from board:", error);
+      dfd.reject(error);
     }
   );
 
@@ -450,36 +460,47 @@ function loadCardsFromNamedList(colName, renderFn) {
   $("#list").html("");
   $("#list-boards").html("");
 
-  $.when(getMyBoards()).then(function (data) {
-    $.each(data, function (id, board) {
-      $.when(getNamedListFromBoard(board.id, colName, true)).then((list) => {
-        printBoardListItem(list, board, list.cards.length);
-        sortCardsDOM($("#list-boards").children(), "DESC");
-        $.each(list.cards, (id, card) => renderFn(card, board));
-        sortCardsDOM($("#list").children());
+  $.when(getMyBoards())
+    .then(function (data) {
+      $.each(data, function (id, board) {
+        $.when(getNamedListFromBoard(board.id, colName, true))
+          .then((list) => {
+            printBoardListItem(list, board, list.cards.length);
+            sortCardsDOM($("#list-boards").children(), "DESC");
+            $.each(list.cards, (id, card) => renderFn(card, board));
+            sortCardsDOM($("#list").children());
+          })
+          .fail((error) => {
+            // List not found on this board - skip and continue
+            console.warn(`${colName} list not found on board ${board.id}`);
+          });
       });
+    })
+    .fail(function (error) {
+      console.error("Error loading boards:", error);
+      setStatus("KO", "Error loading boards: " + error);
+      $("#msg").html("Error loading boards");
     });
-  });
 }
 
 let setStatus = (status, msg = "") => {
   const statusElement = document.getElementById("status");
   switch (status) {
     case "OK":
-      statusElement.innerHTML = `OK ${msg}`;
+      statusElement.innerHTML = `OK: ${msg}`;
       statusElement.className = "status status-ok";
       break;
     case "KO":
-      statusElement.innerHTML = `KO ${msg}`;
+      statusElement.innerHTML = `KO: ${msg}`;
       statusElement.className = "status status-ko";
       break;
     case "WARN":
-      statusElement.innerHTML = `WARNING ${msg}`;
+      statusElement.innerHTML = `WARNING: ${msg}`;
       statusElement.className = "status status-warn";
       break;
     default:
-      statusElement.innerHTML = `ERROR ${status}`;
-      statusElement.className = "status";
+      statusElement.innerHTML = `ERROR: ${status}`;
+      statusElement.className = "status status-error";
       break;
   }
 };

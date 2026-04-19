@@ -11,6 +11,7 @@ $.getScript("https://trello.com/1/client.js?key=" + trellokey, function () {
 });
 
 $("#reloadCards").click(function () {
+  setStatus("WARN", "Loading...");
   loadWaiting();
 });
 
@@ -21,4 +22,7 @@ const printCard = (card, board) => {
   renderCard(card, board, { itemClass });
 };
 
-const loadWaiting = () => loadCardsFromNamedList(COL_WAITING, printCard);
+const loadWaiting = () => {
+  setStatus("WARN", "Loading waiting list...");
+  loadCardsFromNamedList(COL_WAITING, printCard);
+};

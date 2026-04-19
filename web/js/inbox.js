@@ -11,6 +11,7 @@ $.getScript("https://trello.com/1/client.js?key=" + trellokey, function () {
 });
 
 $("#reloadCards").click(function () {
+  setStatus("WARN", "Loading...");
   loadInbox();
 });
 
@@ -21,4 +22,8 @@ const printCard = (card, board) => {
   renderCard(card, board, { itemClass });
 };
 
-const loadInbox = () => loadCardsFromNamedList(COL_INBOX, printCard);
+const loadInbox = () => {
+  setStatus("WARN", "Loading inbox...");
+  loadCardsFromNamedList(COL_INBOX, printCard);
+  setStatus("OK", "Inbox loaded");
+};
