@@ -24,6 +24,9 @@ const printCard = (card, board) => {
 
 const loadInbox = () => {
   setStatus("WARN", "Loading inbox...");
-  loadCardsFromNamedList(COL_INBOX, printCard);
-  setStatus("OK", "Inbox loaded");
+  loadCardsFromNamedList(COL_INBOX, printCard, (success) => {
+    if (success) {
+      setStatus("OK", "Inbox loaded");
+    }
+  });
 };

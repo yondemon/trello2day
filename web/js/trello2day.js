@@ -456,12 +456,20 @@ function renderCard(card, board, options = {}) {
   $("#totalTask").html($("#list li").length);
 }
 
-function loadCardsFromNamedList(colName, renderFn) {
+function loadCardsFromNamedList(colName, renderFn, onComplete) {
   $("#list").html("");
   $("#list-boards").html("");
 
   $.when(getMyBoards())
     .then(function (data) {
+      let pendingLists = data.length;
+      let completedLists = 0;
+
+      if (pendingLists === 0) {
+        if (onComplete) onComplete(true);
+        return;
+      }
+
       $.each(data, function (id, board) {
         $.when(getNamedListFromBoard(board.id, colName, true))
           .then((list) => {
@@ -469,10 +477,18 @@ function loadCardsFromNamedList(colName, renderFn) {
             sortCardsDOM($("#list-boards").children(), "DESC");
             $.each(list.cards, (id, card) => renderFn(card, board));
             sortCardsDOM($("#list").children());
+            completedLists++;
+            if (completedLists === pendingLists && onComplete) {
+              onComplete(true);
+            }
           })
           .fail((error) => {
             // List not found on this board - skip and continue
             console.warn(`${colName} list not found on board ${board.id}`);
+            completedLists++;
+            if (completedLists === pendingLists && onComplete) {
+              onComplete(true);
+            }
           });
       });
     })
@@ -480,6 +496,7 @@ function loadCardsFromNamedList(colName, renderFn) {
       console.error("Error loading boards:", error);
       setStatus("KO", "Error loading boards: " + error);
       $("#msg").html("Error loading boards");
+      if (onComplete) onComplete(false);
     });
 }
 

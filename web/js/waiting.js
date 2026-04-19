@@ -24,5 +24,9 @@ const printCard = (card, board) => {
 
 const loadWaiting = () => {
   setStatus("WARN", "Loading waiting list...");
-  loadCardsFromNamedList(COL_WAITING, printCard);
+  loadCardsFromNamedList(COL_WAITING, printCard, (success) => {
+    if (success) {
+      setStatus("OK", "Waiting list loaded");
+    }
+  });
 };
