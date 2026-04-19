@@ -407,6 +407,63 @@ function getCorrectTextColor(hex) {
   return cBrightness > threshold ? "#000000" : "#ffffff";
 }
 
+function renderCard(card, board, options = {}) {
+  const { list = null, itemClass = "", sortKey = null, showCreationDate = true } = options;
+
+  const itemCreationDate = new Date(1000 * parseInt(card.id.substring(0, 8), 16));
+  const itemDueDate = card.due ? new Date(card.due) : null;
+  const effectiveSortKey = sortKey !== null ? sortKey : itemCreationDate.getTime() / 1000;
+
+  const pad = (n) => String(n).padStart(2, "0");
+  const fmtDate = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+  const listSlugClass = list ? ` list-${list.slug}` : "";
+  const listIdAttr = list ? ` data-listid="${list.id}"` : "";
+  const listBadge = list ? `<span class="badge list list-${list.id}">${list.name}</span>` : "";
+  const creationBadge = showCreationDate
+    ? `<span class="badge date creation-date">${fmtDate(itemCreationDate)}</span>`
+    : "";
+  const dueBadge = itemDueDate
+    ? `<span class="badge date due-date">${fmtDate(itemDueDate)}</span>`
+    : "";
+
+  const itemStr =
+    `<li class="card${listSlugClass} show" data-sortkey="${effectiveSortKey}" data-boardid="${board.id}"${listIdAttr}>` +
+    `<div class='card-header'>` +
+    `  <span class="board board-${board.id}"><a href="http://trello.com/b/${board.id}/">${board.name}</a></span>` +
+    listBadge +
+    `</div>` +
+    `<div class="card-body ${itemClass}">` +
+    `  <h2><a href="http://trello.com/c/${card.id}" target="_blank">${card.name}</a></h2>` +
+    `  <div class='badges'>` +
+    creationBadge +
+    dueBadge +
+    `  </div>` +
+    `</div>` +
+    `</li>`;
+
+  $("#list").append(itemStr);
+  if (board.prefs) colorCardByBoard(board);
+
+  $("#totalTask").html($("#list li").length);
+}
+
+function loadCardsFromNamedList(colName, renderFn) {
+  $("#list").html("");
+  $("#list-boards").html("");
+
+  $.when(getMyBoards()).then(function (data) {
+    $.each(data, function (id, board) {
+      $.when(getNamedListFromBoard(board.id, colName, true)).then((list) => {
+        printBoardListItem(list, board, list.cards.length);
+        sortCardsDOM($("#list-boards").children(), "DESC");
+        $.each(list.cards, (id, card) => renderFn(card, board));
+        sortCardsDOM($("#list").children());
+      });
+    });
+  });
+}
+
 let setStatus = (status, msg = "") => {
   const statusElement = document.getElementById("status");
   switch (status) {

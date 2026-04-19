@@ -2,3 +2,7 @@ const trellokey = 'YOUR API KEY'; // https://trello.com/app-key
 
 const noFutureDays = 14;
 const scrumPoints = 1;
+
+const COL_INBOX = "INBOX";
+const COL_WAITING = "Waiting";
+const COL_BACKLOG = "Backlog";

@@ -22,7 +22,7 @@ var loadBacklogs = function () {
     $.each(data, function (id, board) {
       //console.log('B- '+ board.id + ' ' + board.name);
 
-      $.when(getNamedListFromBoard(board.id, "Backlog", true)).then(function (
+      $.when(getNamedListFromBoard(board.id, COL_BACKLOG, true)).then(function (
         list
       ) {
         //console.log('L-- '+ list.id + ' ' + list.name );
