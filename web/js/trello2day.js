@@ -407,32 +407,81 @@ function renderCard(card, board, options = {}) {
   const itemDueDate = card.due ? new Date(card.due) : null;
   const effectiveSortKey = sortKey !== null ? sortKey : itemCreationDate.getTime() / 1000;
 
-  const listSlugClass = list ? ` list-${list.slug}` : "";
-  const listIdAttr = list ? ` data-listid="${list.id}"` : "";
-  const listBadge = list ? `<span class="badge list list-${list.id}">${list.name}</span>` : "";
-  const creationBadge = showCreationDate
-    ? `<span class="badge date creation-date">${formatDate(itemCreationDate)}</span>`
-    : "";
-  const dueBadge = itemDueDate
-    ? `<span class="badge date due-date">${formatDate(itemDueDate)}</span>`
-    : "";
+  // Build card element
+  const $card = $("<li>")
+    .addClass("card show")
+    .attr("data-sortkey", effectiveSortKey)
+    .attr("data-boardid", board.id);
 
-  const itemStr =
-    `<li class="card${listSlugClass} show" data-sortkey="${effectiveSortKey}" data-boardid="${board.id}"${listIdAttr}>` +
-    `<div class='card-header'>` +
-    `  <span class="board board-${board.id}"><a href="http://trello.com/b/${board.id}/">${board.name}</a></span>` +
-    listBadge +
-    `</div>` +
-    `<div class="card-body ${itemClass}">` +
-    `  <h2><a href="http://trello.com/c/${card.id}" target="_blank">${card.name}</a></h2>` +
-    `  <div class='badges'>` +
-    creationBadge +
-    dueBadge +
-    `  </div>` +
-    `</div>` +
-    `</li>`;
+  // Add list slug class if applicable
+  if (list) {
+    $card.addClass(`list-${list.slug}`);
+    $card.attr("data-listid", list.id);
+  }
 
-  $("#list").append(itemStr);
+  // Build header
+  const $header = $("<div>").addClass("card-header");
+  const $boardLink = $("<span>")
+    .addClass(`board board-${board.id}`)
+    .append(
+      $("<a>")
+        .attr("href", `http://trello.com/b/${board.id}/`)
+        .text(board.name)
+    );
+  $header.append($boardLink);
+
+  // Add list badge if applicable
+  if (list) {
+    $header.append(
+      $("<span>")
+        .addClass("badge list")
+        .addClass(`list-${list.id}`)
+        .text(list.name)
+    );
+  }
+
+  // Build body
+  const $body = $("<div>")
+    .addClass("card-body")
+    .addClass(itemClass);
+
+  // Add card title
+  $body.append(
+    $("<h2>").append(
+      $("<a>")
+        .attr("href", `http://trello.com/c/${card.id}`)
+        .attr("target", "_blank")
+        .text(card.name)
+    )
+  );
+
+  // Build badges section
+  const $badges = $("<div>").addClass("badges");
+
+  if (showCreationDate) {
+    $badges.append(
+      $("<span>")
+        .addClass("badge date creation-date")
+        .text(formatDate(itemCreationDate))
+    );
+  }
+
+  if (itemDueDate) {
+    $badges.append(
+      $("<span>")
+        .addClass("badge date due-date")
+        .text(formatDate(itemDueDate))
+    );
+  }
+
+  $body.append($badges);
+
+  // Assemble card
+  $card.append($header);
+  $card.append($body);
+
+  // Append to DOM and update
+  $("#list").append($card);
   if (board.prefs) colorCardByBoard(board);
 
   $("#totalTask").html($("#list li").length);
