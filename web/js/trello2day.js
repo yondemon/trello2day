@@ -9,7 +9,7 @@ function authorizeTrello() {
     name: "Trello2Day",
     scope: {
       read: true,
-      write: false,
+      write: !!enablePostpone,
     },
     expiration: "never",
     authenticationSuccess,

@@ -257,13 +257,16 @@ ul#list-backlogs input[type="checkbox"] {
 }
 
 .badges {
-  /*    float: left; */
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
   max-width: 100%;
 }
 .badge {
   color: #8c8c8c;
   display: inline-block;
-  margin: 0 4px 0 0;
+  margin: 0;
   max-width: 100%;
   overflow: hidden;
   padding: 1px 2px;
@@ -322,6 +325,26 @@ span#totalTask {
   font-weight: bold;
   text-align: center;
   line-height: 1.6em;
+}
+
+.btn-postpone {
+  background: #e0e0e0;
+  border: 1px solid #bbb;
+  border-radius: 3px;
+  color: #555;
+  cursor: pointer;
+  font-size: 0.7rem;
+  line-height: 1;
+  padding: 3px 8px;
+}
+.btn-postpone:hover {
+  background: #c8e6c9;
+  border-color: #81c784;
+  color: #2e7d32;
+}
+.btn-postpone:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 #scrumBoard span.iterationTasks,

@@ -22,6 +22,89 @@ let listStatus = {};
 // Pre-compiled regex for parsing scrum points: (3/5) or (3.5/5.5)
 const SCRUM_POINTS_REGEX = /\(((([\d]+(.[\d])?)\/)?([\d]+(.[\d])?))\)/;
 
+function accumulateScrumFromCard($card, isFuture) {
+  const scrumData = parseScrumPoints($card.find("h2 a").text());
+  if (!scrumData) return;
+  if (scrumData.done !== null) scrum.total.done += scrumData.done;
+  if (scrumData.total !== null) scrum.total.total += scrumData.total;
+  if (!isFuture) {
+    if (scrumData.done !== null) scrum.iteration.done += scrumData.done;
+    if (scrumData.total !== null) scrum.iteration.total += scrumData.total;
+  }
+}
+
+function recalculateCounts() {
+  taskCountToday = 0;
+  taskCountFuture = 0;
+  taskCountIteration = 0;
+  scrum = JSON.parse(JSON.stringify(scrumInit));
+
+  $("li.card.show").each(function () {
+    const $body = $(this).find(".card-body");
+    const isFuture = $body.hasClass("futuretask");
+
+    if ($body.hasClass("latetask") || $body.hasClass("todaytask")) {
+      taskCountToday++;
+      taskCountIteration++;
+    } else if (isFuture) {
+      taskCountFuture++;
+    } else {
+      taskCountIteration++;
+    }
+
+    if (scrumPoints) accumulateScrumFromCard($(this), isFuture);
+  });
+
+  $("#totalTask").html(
+    taskCountToday +
+      (taskCountIteration > 0
+        ? ' <span class="iterationTasks">[+' + taskCountIteration + "]</span>"
+        : "")
+  );
+
+  if (scrumPoints) updateScrumDisplay();
+}
+
+function updateScrumDisplay() {
+  $("#scrumIteration").html(
+    "Scrum Iteration: (" + scrum.iteration.done + "/" + scrum.iteration.total + ")"
+  );
+  $("#scrumTotal").html(
+    "Scrum: (" + scrum.total.done + "/" + scrum.total.total + ")"
+  );
+}
+
+function promptWriteReauth() {
+  if (confirm("Trello2Day necesita permiso de escritura para posponer tarjetas. ¿Re-autorizar ahora?")) {
+    Trello.deauthorize();
+    Trello.authorize({
+      type: "popup",
+      name: "Trello2Day",
+      scope: { read: true, write: true },
+      expiration: "never",
+      authenticationSuccess: function () {},
+      authenticationFailure: function () {
+        alert("Autorización fallida. La función de posponer no estará disponible.");
+      },
+    });
+  }
+}
+
+function checkWritePermission() {
+  const token = Trello.token();
+  if (!token) return;
+
+  Trello.get(
+    "/tokens/" + token,
+    { fields: "permissions" },
+    function (data) {
+      const hasWrite = data.permissions && data.permissions.some((p) => p.write === true);
+      if (!hasWrite) promptWriteReauth();
+    },
+    function () {}
+  );
+}
+
 $.getScript("https://api.trello.com/1/client.js?key=" + trellokey, function () {
   console.log("Trello Client Script loaded.");
 
@@ -32,8 +115,48 @@ $.getScript("https://api.trello.com/1/client.js?key=" + trellokey, function () {
   });
 
   $("#msg").append('<div id="scrumBoard" class=""></div>');
-  $("#list-status").on("click", "input[type=checkbox]", selectedStatus);
-  $("#list-boards").on("click", "input[type=checkbox]", selectedBoard);
+  $("#list-status").on("click", "input[type=checkbox]", function (event) {
+    selectedStatus(event);
+    recalculateCounts();
+  });
+  $("#list-boards").on("click", "input[type=checkbox]", function (event) {
+    selectedBoard(event);
+    recalculateCounts();
+  });
+
+  if (enablePostpone) {
+    checkWritePermission();
+
+    $("#list").on("click", ".btn-postpone", function () {
+      const $btn = $(this);
+      const cardId = $btn.data("cardid");
+      const newDue = new Date(new Date($btn.data("due")).getTime() + 7 * 86400000);
+
+      $btn.prop("disabled", true).text("...");
+
+      Trello.put(
+        "/cards/" + cardId,
+        { due: newDue.toISOString() },
+        function () {
+          const daysLate = Math.floor((Date.now() - newDue.getTime()) / 86400000);
+          $btn.data("due", newDue.toISOString()).text("+7d").prop("disabled", false);
+          $btn.siblings(".badge.date").text(formatDate(newDue) + "   [" + daysLate + "]");
+          const $body = $btn.closest(".card-body");
+          const { itemClass } = classifyTask(newDue.getTime(), createTimeWindows());
+          $body.removeClass("latetask todaytask futuretask").addClass(itemClass);
+          recalculateCounts();
+        },
+        function (xhr) {
+          $btn.text("+7d").prop("disabled", false);
+          if (xhr && xhr.status === 401) {
+            promptWriteReauth();
+          } else {
+            console.error("Error updating card due date:", xhr);
+          }
+        }
+      );
+    });
+  }
 });
 
 $("#reloadCards").click(function () {
@@ -270,6 +393,7 @@ function loadCards(strMsg) {
           "   [" +
           daysLate +
           "]</span>" +
+          (enablePostpone ? `   <button class="btn-postpone" data-cardid="${item.id}" data-due="${item.due}">+7d</button>` : "") +
           "  </div>" +
           "</div>" +
           "</li>";
