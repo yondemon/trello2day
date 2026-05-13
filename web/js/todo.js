@@ -1,3 +1,5 @@
+let taskCountTodo = 0;
+let taskCountLate = 0;
 let taskCountToday = 0;
 let taskCountFuture = 0;
 
@@ -22,6 +24,75 @@ let listStatus = {};
 // Pre-compiled regex for parsing scrum points: (3/5) or (3.5/5.5)
 const SCRUM_POINTS_REGEX = /\(((([\d]+(.[\d])?)\/)?([\d]+(.[\d])?))\)/;
 
+function buildCardHTML(item, board, itemClass, listName, listNameSlug, itemDueDate, daysLate) {
+  return (
+    `<li class="card ${listNameSlug} show" data-listid="${item.idList}" data-boardid="${board.id}" data-sortkey="${itemDueDate.getTime()}">` +
+    "<div class='card-header'>" +
+    `  <span class="board board-${board.id}"><a href="http://trello.com/b/${board.id}/">${board.name}</a></span>` +
+    `  <span class="badge list list-${item.idList} ${listNameSlug}">${listName}</span>` +
+    `  <span class="id">#${item.idShort}</span>` +
+    "</div>" +
+    `<div class="card-body ${itemClass}">` +
+    `  <h2><a href="http://trello.com/c/${item.id}" target="_blank">${item.name}</a></h2>` +
+    "  <div class='badges'>" +
+    `   <span class='badge date'>${formatDate(itemDueDate)}   [${daysLate}]</span>` +
+    (enablePostpone ? `   <button class="btn-postpone" data-cardid="${item.id}" data-due="${item.due}">+7d</button>` : "") +
+    "  </div>" +
+    "</div>" +
+    "</li>"
+  );
+}
+
+function reloadBoard(boardId) {
+  const listIds = new Set();
+  $("li.card[data-boardid='" + boardId + "']").each(function () {
+    listIds.add(String($(this).data("listid")));
+  });
+  listIds.forEach(function (listId) {
+    $(".listStatus-" + listId).remove();
+    delete listStatus[listId];
+  });
+  $("li.card[data-boardid='" + boardId + "']").remove();
+
+  Trello.get(
+    "/boards/" + boardId + "/cards/open?fields=all&list=true&list_fields=all",
+    function (data) {
+      const timeWindows = createTimeWindows();
+      const boardName = getBoardName(boardId);
+      const board = { id: boardId, name: boardName };
+
+      data
+        .filter(item => item.due !== null && !item.dueComplete)
+        .sort((a, b) => a.due < b.due ? -1 : a.due > b.due ? 1 : 0)
+        .forEach(function (item) {
+          const itemDueDate = new Date(item.due);
+          const { itemClass } = classifyTask(itemDueDate.getTime(), timeWindows);
+          const listName = getListName(item.idList);
+          if (typeof listName !== "undefined" && !listStatus[item.idList]) {
+            appendStatusList(item.idList, slugify(listName), listName);
+            listStatus[item.idList] = true;
+          }
+          const listNameSlug = typeof listName !== "undefined" ? "list-" + slugify(listName) : "";
+          $("#list").append(buildCardHTML(item, board, itemClass, listName, listNameSlug, itemDueDate, calcDaysLate(itemDueDate)));
+        });
+
+      const $bb = $(".card[data-boardid='" + boardId + "'] .card-body");
+      printBoardListItem(null, board, {
+        total: $bb.length,
+        late: $bb.filter(".latetask").length,
+        today: $bb.filter(".todaytask").length,
+        future: $bb.not(".latetask").not(".todaytask").length
+      }, { showReload: true });
+
+      sortCardsDOM($("#list").children());
+      recalculateCounts();
+    },
+    function (msg) {
+      console.error("Error reloading board:", msg);
+    }
+  );
+}
+
 function accumulateScrumFromCard($card, isFuture) {
   const scrumData = parseScrumPoints($card.find("h2 a").text());
   if (!scrumData) return;
@@ -33,7 +104,23 @@ function accumulateScrumFromCard($card, isFuture) {
   }
 }
 
+function buildTotalTaskHTML() {
+  const subs = [
+    taskCountLate   > 0 ? '<span class="sub-count count-late">'   + taskCountLate   + '</span>' : '',
+    taskCountToday  > 0 ? '<span class="sub-count count-today">'  + taskCountToday  + '</span>' : '',
+    taskCountFuture > 0 ? '<span class="sub-count count-future">' + taskCountFuture + '</span>' : '',
+  ].join('');
+  return (
+    '<span id="totalTask">' +
+      taskCountTodo +
+      (subs ? '<span class="sub-counters">' + subs + '</span>' : '') +
+    '</span>'
+  );
+}
+
 function recalculateCounts() {
+  taskCountTodo = 0;
+  taskCountLate = 0;
   taskCountToday = 0;
   taskCountFuture = 0;
   taskCountIteration = 0;
@@ -43,24 +130,37 @@ function recalculateCounts() {
     const $body = $(this).find(".card-body");
     const isFuture = $body.hasClass("futuretask");
 
-    if ($body.hasClass("latetask") || $body.hasClass("todaytask")) {
+    if ($body.hasClass("latetask")) {
+      taskCountTodo++;
+      taskCountLate++;
+      taskCountIteration++;
+    } else if ($body.hasClass("todaytask")) {
+      taskCountTodo++;
       taskCountToday++;
       taskCountIteration++;
     } else if (isFuture) {
       taskCountFuture++;
     } else {
+      taskCountFuture++;
       taskCountIteration++;
     }
 
     if (scrumPoints) accumulateScrumFromCard($(this), isFuture);
   });
 
-  $("#totalTask").html(
-    taskCountToday +
-      (taskCountIteration > 0
-        ? ' <span class="iterationTasks">[+' + taskCountIteration + "]</span>"
-        : "")
-  );
+  $("#totalTask").replaceWith(buildTotalTaskHTML());
+
+  $("#list-boards li").each(function () {
+    const boardId = $(this).find("input[type=checkbox]").data("id");
+    const $bb = $("li.card.show[data-boardid='" + boardId + "'] .card-body");
+    printBoardListItem(null, { id: boardId }, {
+      total: $bb.length,
+      late: $bb.filter(".latetask").length,
+      today: $bb.filter(".todaytask").length,
+      future: $bb.not(".latetask").not(".todaytask").length
+    });
+  });
+  sortCardsDOM($("#list-boards").children(), "DESC");
 
   if (scrumPoints) updateScrumDisplay();
 }
@@ -123,6 +223,10 @@ $.getScript("https://api.trello.com/1/client.js?key=" + trellokey, function () {
     selectedBoard(event);
     recalculateCounts();
   });
+  $("#list-boards").on("click", ".btn-board-reload", function (e) {
+    e.stopPropagation();
+    reloadBoard($(this).data("boardid"));
+  });
 
   if (enablePostpone) {
     checkWritePermission();
@@ -138,7 +242,7 @@ $.getScript("https://api.trello.com/1/client.js?key=" + trellokey, function () {
         "/cards/" + cardId,
         { due: newDue.toISOString() },
         function () {
-          const daysLate = Math.floor((Date.now() - newDue.getTime()) / 86400000);
+          const daysLate = calcDaysLate(newDue);
           $btn.data("due", newDue.toISOString()).text("+7d").prop("disabled", false);
           $btn.siblings(".badge.date").text(formatDate(newDue) + "   [" + daysLate + "]");
           const $body = $btn.closest(".card-body");
@@ -160,7 +264,6 @@ $.getScript("https://api.trello.com/1/client.js?key=" + trellokey, function () {
 });
 
 $("#reloadCards").click(function () {
-  $("#scrumBoard").html("");
   loadCards("RELOAD");
 });
 
@@ -179,14 +282,24 @@ function appendStatusList(idList, listNameSlug, listName) {
 /**
  * Create time boundaries for classifying tasks (today, future, late).
  */
+function calcDaysLate(date) {
+  const todayMidnight = new Date();
+  todayMidnight.setHours(0, 0, 0, 0);
+  const dueMidnight = new Date(date);
+  dueMidnight.setHours(0, 0, 0, 0);
+  return Math.round((todayMidnight - dueMidnight) / 86400000);
+}
+
 function createTimeWindows() {
-  const today = new Date();
-  const futureDay = new Date(
-    new Date().setDate(new Date().getDate() + noFutureDays)
-  );
+  const now = new Date();
+  const tomorrow = new Date(now);
+  tomorrow.setDate(now.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+  const futureDay = new Date(now);
+  futureDay.setDate(now.getDate() + noFutureDays);
   return {
-    todayStarts: today.getTime(),
-    todayEnds: today.getTime() + 86400000,
+    todayStarts: now.getTime(),
+    todayEnds: tomorrow.getTime(),
     futureStarts: futureDay.getTime(),
   };
 }
@@ -198,20 +311,23 @@ function createTimeWindows() {
 function classifyTask(itemDueDateTime, timeWindows) {
   const { todayStarts, todayEnds, futureStarts } = timeWindows;
   let itemClass = "";
-  const countsToAdd = { today: 0, future: 0, iteration: 0 };
+  const countsToAdd = { todo: 0, late: 0, today: 0, future: 0, iteration: 0 };
 
   if (itemDueDateTime > futureStarts) {
     itemClass = "futuretask";
     countsToAdd.future = 1;
   } else if (itemDueDateTime < todayStarts) {
     itemClass = "latetask";
-    countsToAdd.today = 1;
+    countsToAdd.todo = 1;
+    countsToAdd.late = 1;
     countsToAdd.iteration = 1;
   } else if (itemDueDateTime < todayEnds) {
     itemClass = "todaytask";
+    countsToAdd.todo = 1;
     countsToAdd.today = 1;
     countsToAdd.iteration = 1;
   } else {
+    countsToAdd.future = 1;
     countsToAdd.iteration = 1;
   }
 
@@ -239,6 +355,8 @@ function parseScrumPoints(cardName) {
  * Updates global counters and scrum object.
  */
 function accumulateCounts(countsToAdd, scrumData, timeWindows, itemDueDateTime) {
+  taskCountTodo += countsToAdd.todo;
+  taskCountLate += countsToAdd.late;
   taskCountToday += countsToAdd.today;
   taskCountFuture += countsToAdd.future;
   taskCountIteration += countsToAdd.iteration;
@@ -268,8 +386,8 @@ function accumulateCounts(countsToAdd, scrumData, timeWindows, itemDueDateTime) 
  */
 function updateStatusDisplay() {
   $("#msg #text").append(
-    "[<span id='taskCountToday'>T:" +
-      taskCountToday +
+    "[<span id='taskCountTodo'>T:" +
+      taskCountTodo +
       "  I:" +
       taskCountIteration +
       "  F:" +
@@ -278,16 +396,7 @@ function updateStatusDisplay() {
   );
 
   $("#scrumBoard").remove("#totalTask");
-  $("#scrumBoard").append(
-    '<span id="totalTask">' +
-      taskCountToday +
-      (taskCountIteration > 0
-        ? ' <span class="iterationTasks">[+' +
-          taskCountIteration +
-          "]</span>"
-        : "") +
-      "</span>"
-  );
+  $("#scrumBoard").append(buildTotalTaskHTML());
 
   if (scrumPoints) {
     $("#scrumBoard").append(
@@ -310,18 +419,24 @@ function updateStatusDisplay() {
 }
 
 function loadCards(strMsg) {
-  // Reset counters
+  // Reset counters and state
+  taskCountTodo = 0;
+  taskCountLate = 0;
   taskCountToday = 0;
   taskCountFuture = 0;
   taskCountIteration = 0;
   scrum = JSON.parse(JSON.stringify(scrumInit));
+  listStatus = {};
+  $("#list").html("");
+  $("#list-status").html("");
+  $("#list-boards").html("");
+  $("#scrumBoard").html("");
 
   Trello.get(
     "/members/me/cards/open?fields=all&list=true&list_fields=all",
     function (data) {
       setStatus("OK", strMsg);
       $("#msg #text").html(strMsg + " OK");
-      $("#list").html("");
 
       // Filter and sort tasks
       var todoTasks = [];
@@ -368,39 +483,22 @@ function loadCards(strMsg) {
             ? "list-" + slugify(listName)
             : "";
 
-        var daysLate = Math.floor(
-          (Date.now() - itemDueDateTime) / 86400000
-        );
+        var daysLate = calcDaysLate(itemDueDate);
 
         var board = {
           id: item.idBoard,
           name: getBoardName(item.idBoard),
         };
 
-        // Render card
-        var itemStr =
-          `<li class="card ${listNameSlug} show" data-listid="${item.idList}" data-boardid="${board.id}">` +
-          "<div class='card-header'>" +
-          `  <span class="board board-${board.id}"><a href="http://trello.com/b/${board.id}/">${board.name}</a></span>` +
-          `  <span class="badge list list-${item.idList} ${listNameSlug}">${listName}</span>` +
-          `  <span class="id">${item.idShort}</span>` +
-          "</div>" +
-          `<div class="card-body ${itemClass}">` +
-          `  <h2><a href="http://trello.com/c/${item.id}" target="_blank">${item.name}</a></h2>` +
-          "  <div class='badges'>" +
-          "   <span class='badge date'>" +
-          formatDate(itemDueDate) +
-          "   [" +
-          daysLate +
-          "]</span>" +
-          (enablePostpone ? `   <button class="btn-postpone" data-cardid="${item.id}" data-due="${item.due}">+7d</button>` : "") +
-          "  </div>" +
-          "</div>" +
-          "</li>";
+        $("#list").append(buildCardHTML(item, board, itemClass, listName, listNameSlug, itemDueDate, daysLate));
 
-        $("#list").append(itemStr);
-
-        printBoardListItem(null, board, $(".card .board-" + item.idBoard).length);
+        const $bb = $(".card[data-boardid='" + board.id + "'] .card-body");
+        printBoardListItem(null, board, {
+          total: $bb.length,
+          late: $bb.filter(".latetask").length,
+          today: $bb.filter(".todaytask").length,
+          future: $bb.not(".latetask").not(".todaytask").length
+        }, { showReload: true });
         sortCardsDOM($("#list-boards").children(), "DESC");
       });
 

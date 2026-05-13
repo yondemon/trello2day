@@ -237,7 +237,7 @@ function getNamedListFromBoard(boardId, name, cards = false) {
     function (data) {
       let found = false;
       $.each(data, function (id, item) {
-        if (item.name === name) {
+        if (item.name.toLowerCase() === name.toLowerCase()) {
           dfd.resolve(item);
           found = true;
         }
@@ -344,25 +344,43 @@ const sortCardsDOM = (cardsList, order = "ASC") => {
   });
 };
 
-const printBoardListItem = (list, board, count) => {
-  const countPlaceholder = $(".board-" + board.id + "-count");
-  if (countPlaceholder.length == 0) {
-    let itemClass = "";
+const buildBoardCountHTML = (counts) => {
+  const subs = [
+    counts.late  > 0 ? '<span class="sub-count count-late">'   + counts.late   + '</span>' : '',
+    counts.today > 0 ? '<span class="sub-count count-today">'  + counts.today  + '</span>' : '',
+    counts.future> 0 ? '<span class="sub-count count-future">' + counts.future + '</span>' : '',
+  ].join('');
+  return '<strong>' + counts.total + '</strong>' +
+    (subs ? '<span class="board-sub-counts">' + subs + '</span>' : '');
+};
 
-    const itemStr = $(
-      `<li class="${count > ALERT_THRESHOLD ? "alert" : ""}">` +
+const printBoardListItem = (list, board, rawCounts, options = {}) => {
+  const counts = typeof rawCounts === 'number'
+    ? { total: rawCounts, late: 0, today: 0, future: 0 }
+    : rawCounts;
+  const reloadBtn = options.showReload
+    ? `<button class="btn-board-reload" data-boardid="${board.id}">↺</button>`
+    : '';
+  const $placeholder = $(".board-" + board.id + "-count");
+  if ($placeholder.length == 0) {
+    const $item = $(
+      `<li>` +
         `<input type="checkbox" data-id="${board.id}" checked/>` +
         `<a href="http://trello.com/b/${board.id}/">` +
         `<span class="board-${board.id}">${board.name}</span></a>` +
-        `[<span class="board-${board.id}-count">${count}</span>]</li>`
+        `[<span class="board-${board.id}-count"></span>]` +
+        reloadBtn +
+        `</li>`
     );
-
-    itemStr.data("sortkey", count);
-    $("#list-boards").append(itemStr);
+    $item.data("sortkey", counts.total);
+    if (counts.total > ALERT_THRESHOLD) $item.addClass("alert");
+    $item.find(".board-" + board.id + "-count").html(buildBoardCountHTML(counts));
+    $("#list-boards").append($item);
   } else {
-    countPlaceholder.closest("li").data("sortkey", count);
-    if (count > ALERT_THRESHOLD) countPlaceholder.closest("li").addClass("alert");
-    countPlaceholder.html(count);
+    const $li = $placeholder.closest("li");
+    $li.data("sortkey", counts.total);
+    $li.toggleClass("alert", counts.total > ALERT_THRESHOLD);
+    $placeholder.html(buildBoardCountHTML(counts));
   }
 };
 
@@ -495,11 +513,31 @@ function loadCardsFromNamedList(colName, renderFn, onComplete) {
     .then(function (data) {
       let pendingLists = data.length;
       let completedLists = 0;
+      let missingBoards = [];
 
       if (pendingLists === 0) {
         if (onComplete) onComplete(true);
         return;
       }
+
+      const checkComplete = () => {
+        completedLists++;
+        if (completedLists === pendingLists) {
+          if (missingBoards.length > 0) {
+            $("#list-boards").append(
+              $('<li class="no-list-separator">').text("— sin " + colName + " —")
+            );
+            missingBoards.forEach((b) => {
+              $("#list-boards").append(
+                $('<li class="no-list-board">').append(
+                  $("<a>").attr("href", "http://trello.com/b/" + b.id + "/").text(b.name)
+                )
+              );
+            });
+          }
+          if (onComplete) onComplete(true);
+        }
+      };
 
       $.each(data, function (id, board) {
         $.when(getNamedListFromBoard(board.id, colName, true))
@@ -508,18 +546,14 @@ function loadCardsFromNamedList(colName, renderFn, onComplete) {
             sortCardsDOM($("#list-boards").children(), "DESC");
             $.each(list.cards, (id, card) => renderFn(card, board));
             sortCardsDOM($("#list").children());
-            completedLists++;
-            if (completedLists === pendingLists && onComplete) {
-              onComplete(true);
-            }
+            checkComplete();
           })
           .fail((error) => {
-            // List not found on this board - skip and continue
             console.warn(`${colName} list not found on board ${board.id}`);
-            completedLists++;
-            if (completedLists === pendingLists && onComplete) {
-              onComplete(true);
+            if (typeof error === "string") {
+              missingBoards.push(board);
             }
+            checkComplete();
           });
       });
     })

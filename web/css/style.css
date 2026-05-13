@@ -115,15 +115,27 @@ nav ul {
 }
 nav li {
   display: inline-block;
-  /* border: 1px solid; */
   min-width: 5em;
-  padding: 0.4em;
-  background: #ccc;
+  padding: 0.4em 0.8em;
+  background: #bbb;
   text-align: center;
   margin-bottom: 0px;
+  border-radius: 0.5rem 0.5rem 0 0;
+  margin-right: 2px;
+}
+nav li a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 600;
+}
+nav li:hover {
+  background-color: #d6d6d6;
 }
 nav li.active {
   background-color: #fff;
+}
+nav li.active a {
+  color: #222;
 }
 
 .content {
@@ -166,6 +178,8 @@ ul#list-backlogs {
   background: #fff;
   padding: 10px;
   list-style-type: none;
+  border: 1px solid #ddd;
+  border-radius: 3px;
 }
 
 ul#list-status input[type="checkbox"],
@@ -176,6 +190,7 @@ ul#list-backlogs input[type="checkbox"] {
 
 #list li {
   border: 1px solid #999;
+  border-radius: 0.75rem;
   margin: 3px;
   min-height: 2em;
   list-style-type: none;
@@ -202,6 +217,7 @@ ul#list-backlogs input[type="checkbox"] {
 #list li .card-body {
   background-color: #eee;
   color: #333;
+  border-radius: 0.5rem;
   padding: 0.2rem;
 }
 
@@ -327,6 +343,69 @@ span#totalTask {
   line-height: 1.6em;
 }
 
+.btn-board-reload {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: bold;
+  color: #aaa;
+  padding: 0 2px;
+  vertical-align: middle;
+}
+.btn-board-reload:hover {
+  color: #333;
+}
+
+.board-sub-counts {
+  display: inline-flex;
+  gap: 2px;
+  margin-left: 3px;
+  vertical-align: middle;
+}
+
+#scrumBoard span.sub-counters {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+  margin-top: 3px;
+}
+
+#scrumBoard span.sub-count,
+.board-sub-counts .sub-count {
+  display: inline-block;
+  font-size: 0.62em;
+  font-weight: normal;
+  padding: 1px 5px;
+  border-radius: 3px;
+  min-width: 18px;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.board-sub-counts .sub-count {
+  padding: 0 3px;
+  min-width: 14px;
+}
+
+.count-late {
+  background-color: #ffc5c5;
+  color: #a94442;
+  border: 1px solid #ff9999;
+}
+
+.count-today {
+  background-color: #e4d57f;
+  color: #a97c42;
+  border: 1px solid #c8bb4a;
+}
+
+.count-future {
+  background-color: #fff;
+  color: #666;
+  border: 1px solid #ddd;
+}
+
 .btn-postpone {
   background: #e0e0e0;
   border: 1px solid #bbb;
@@ -345,6 +424,27 @@ span#totalTask {
 .btn-postpone:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.no-list-separator {
+  font-size: 0.75rem;
+  color: #aaa;
+  text-align: center;
+  border-top: 1px solid #eee;
+  padding-top: 4px;
+  margin-top: 2px;
+  list-style: none;
+}
+
+.no-list-board {
+  font-size: 0.85em;
+  color: #bbb;
+  list-style: none;
+}
+
+.no-list-board a {
+  color: #bbb;
+  text-decoration: none;
 }
 
 #scrumBoard span.iterationTasks,
