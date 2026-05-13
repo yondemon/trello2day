@@ -359,7 +359,7 @@ const printBoardListItem = (list, board, rawCounts, options = {}) => {
     ? { total: rawCounts, late: 0, today: 0, future: 0 }
     : rawCounts;
   const reloadBtn = options.showReload
-    ? `<button class="btn-board-reload" data-boardid="${board.id}">↺</button>`
+    ? `<button class="btn-board-reload" data-boardid="${board.id}">&#8635;</button>`
     : '';
   const $placeholder = $(".board-" + board.id + "-count");
   if ($placeholder.length == 0) {
