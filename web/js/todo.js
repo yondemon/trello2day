@@ -432,6 +432,7 @@ function loadCards(strMsg) {
   $("#list-boards").html("");
   $("#scrumBoard").html("");
 
+  setStatus("WARN", "Fetching Cards");
   Trello.get(
     "/members/me/cards/open?fields=all&list=true&list_fields=all",
     function (data) {
