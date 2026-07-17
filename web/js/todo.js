@@ -24,11 +24,21 @@ let listStatus = {};
 // Pre-compiled regex for parsing scrum points: (3/5) or (3.5/5.5)
 const SCRUM_POINTS_REGEX = /\(((([\d]+(.[\d])?)\/)?([\d]+(.[\d])?))\)/;
 
+function registerListStatus(idList, listName) {
+  if (typeof listName === "undefined") return "";
+  if (!listStatus[idList]) {
+    appendStatusList(idList, slugify(listName), listName);
+    listStatus[idList] = true;
+  }
+  return "list-" + slugify(listName);
+}
+
 function buildCardHTML(item, board, itemClass, listName, listNameSlug, itemDueDate, daysLate) {
+  const boardName = truncateName(board.name);
   return (
     `<li class="card ${listNameSlug} show" data-listid="${item.idList}" data-boardid="${board.id}" data-sortkey="${itemDueDate.getTime()}">` +
     "<div class='card-header'>" +
-    `  <span class="board board-${board.id}"><a href="http://trello.com/b/${board.id}/">${board.name}</a></span>` +
+    `  <span class="board board-${board.id}"><a href="http://trello.com/b/${board.id}/"${titleAttr(boardName.title)}>${boardName.text}</a></span>` +
     `  <span class="badge list list-${item.idList} ${listNameSlug}">${listName}</span>` +
     `  <span class="id">#${item.idShort}</span>` +
     "</div>" +
@@ -68,11 +78,7 @@ function reloadBoard(boardId) {
           const itemDueDate = new Date(item.due);
           const { itemClass } = classifyTask(itemDueDate.getTime(), timeWindows);
           const listName = getListName(item.idList);
-          if (typeof listName !== "undefined" && !listStatus[item.idList]) {
-            appendStatusList(item.idList, slugify(listName), listName);
-            listStatus[item.idList] = true;
-          }
-          const listNameSlug = typeof listName !== "undefined" ? "list-" + slugify(listName) : "";
+          const listNameSlug = registerListStatus(item.idList, listName);
           $("#list").append(buildCardHTML(item, board, itemClass, listName, listNameSlug, itemDueDate, calcDaysLate(itemDueDate)));
         });
 
@@ -473,16 +479,7 @@ function loadCards(strMsg) {
 
         // Add list to status filter if not already added
         var listName = getListName(item.idList);
-        if (typeof listName !== "undefined" && !listStatus[item.idList]) {
-          const slug = slugify(listName);
-          appendStatusList(item.idList, slug, listName);
-          listStatus[item.idList] = true;
-        }
-
-        var listNameSlug =
-          typeof listName !== "undefined"
-            ? "list-" + slugify(listName)
-            : "";
+        var listNameSlug = registerListStatus(item.idList, listName);
 
         var daysLate = calcDaysLate(itemDueDate);
 

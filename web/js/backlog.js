@@ -55,10 +55,11 @@ function loadBacklogs() {
 
 function printBacklogList(list, board) {
   var count = list.cards.length;
+  var boardName = truncateName(board.name);
 
   var itemStr =
     `<li data-count="${count}" class="${count > BACKLOG_ALERT_THRESHOLD ? "alert" : ""}">` +
-    `<a href="http://trello.com/b/${board.id}/">${board.name}</a>` +
+    `<a href="http://trello.com/b/${board.id}/"${titleAttr(boardName.title)}>${boardName.text}</a>` +
     ` [<span class="board-${board.id}-count">${count}</span>]</li>`;
 
   $("#list-backlogs").append(itemStr);

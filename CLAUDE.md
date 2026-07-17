@@ -26,7 +26,7 @@ There are no build, lint, or test steps — this is a static client-side app wit
 
 ### Core modules
 
-- **`config.js`** — Trello API key and constants (`noFutureDays`, `scrumPoints`, `ALERT_THRESHOLD`, `COL_INBOX`, `COL_WAITING`, `COL_BACKLOG`). This file is `.gitignore`d; each user creates their own.
+- **`config.js`** — Trello API key and constants (`noFutureDays`, `scrumPoints`, `ALERT_THRESHOLD`, `COL_INBOX`, `COL_WAITING`, `COL_BACKLOG`, `BOARD_NAME_MAX_LENGTH`). This file is `.gitignore`d; each user creates their own.
 - **`trello2day.js`** — All shared logic: Trello OAuth, board/list/card fetching, `renderCard()`, `loadCardsFromNamedList()`, sorting, date formatting, and board-color-to-text-contrast calculation.
 
 ### Data flow
@@ -56,4 +56,5 @@ var BACKLOG_ALERT_THRESHOLD = 20;
 var COL_INBOX = 'Inbox';
 var COL_WAITING = 'Waiting';
 var COL_BACKLOG = 'Backlog';
+var BOARD_NAME_MAX_LENGTH = 25;
 ```

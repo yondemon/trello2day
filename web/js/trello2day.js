@@ -344,6 +344,13 @@ const sortCardsDOM = (cardsList, order = "ASC") => {
   });
 };
 
+const truncateName = (name, maxLength = BOARD_NAME_MAX_LENGTH) =>
+  name.length > maxLength
+    ? { text: name.slice(0, maxLength) + "...", title: name }
+    : { text: name, title: null };
+
+const titleAttr = (title) => (title ? ` title="${title}"` : "");
+
 const buildBoardCountHTML = (counts) => {
   const subs = [
     counts.late  > 0 ? '<span class="sub-count count-late">'   + counts.late   + '</span>' : '',
@@ -363,11 +370,12 @@ const printBoardListItem = (list, board, rawCounts, options = {}) => {
     : '';
   const $placeholder = $(".board-" + board.id + "-count");
   if ($placeholder.length == 0) {
+    const boardName = truncateName(board.name);
     const $item = $(
       `<li>` +
         `<input type="checkbox" data-id="${board.id}" checked/>` +
         `<a href="http://trello.com/b/${board.id}/">` +
-        `<span class="board-${board.id}">${board.name}</span></a>` +
+        `<span class="board-${board.id}"${titleAttr(boardName.title)}>${boardName.text}</span></a>` +
         `[<span class="board-${board.id}-count"></span>]` +
         reloadBtn +
         `</li>`
@@ -438,13 +446,15 @@ function renderCard(card, board, options = {}) {
   }
 
   // Build header
+  const boardName = truncateName(board.name);
   const $header = $("<div>").addClass("card-header");
   const $boardLink = $("<span>")
     .addClass(`board board-${board.id}`)
     .append(
       $("<a>")
         .attr("href", `http://trello.com/b/${board.id}/`)
-        .text(board.name)
+        .attr("title", boardName.title)
+        .text(boardName.text)
     );
   $header.append($boardLink);
 
