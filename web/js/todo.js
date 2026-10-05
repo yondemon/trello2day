@@ -440,7 +440,7 @@ function loadCards(strMsg) {
 
   setStatus("WARN", "Fetching Cards");
   Trello.get(
-    "/members/me/cards/open?fields=all&list=true&list_fields=all",
+    "/members/me/cards/visible?fields=all&list=true&list_fields=all",
     function (data) {
       setStatus("OK", strMsg);
       $("#msg #text").html(strMsg + " OK");
